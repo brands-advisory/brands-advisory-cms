@@ -55,3 +55,5 @@ nunit-*.xml
 
 # Local development settings (may contain secrets)
 appsettings.Development.json
+secrets.sh
+secrets.ps1
