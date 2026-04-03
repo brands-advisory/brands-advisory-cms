@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BrandsAdvisory.Core\BrandsAdvisory.Core.csproj" />
+    <ProjectReference Include="..\BrandsAdvisory.Infrastructure\BrandsAdvisory.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,7 +4,7 @@
 @using Syncfusion.Blazor.RichTextEditor
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IOwnerService OwnerService
-@inject ICosmosDbService CosmosDb
+@inject IArticleRepository ArticleRepo
 @inject NavigationManager Nav
 
 <PageTitle>@(_isNew ? "New Article" : "Edit Article") · Brands Advisory</PageTitle>
@@ -127,7 +127,7 @@ else
         }
         else
         {
-            var existing = await CosmosDb.GetArticleByIdAsync(Id);
+            var existing = await ArticleRepo.GetByIdAsync(Id);
             if (existing is null)
             {
                 Nav.NavigateTo("/articles");
@@ -156,7 +156,7 @@ else
         if (!_article.IsPublished)
             _article.PublishedDate = null;
 
-        await CosmosDb.UpsertArticleAsync(_article);
+        await ArticleRepo.UpsertAsync(_article);
         Nav.NavigateTo($"/articles/{_article.Slug}");
     }
 

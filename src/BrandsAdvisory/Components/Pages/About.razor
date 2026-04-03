@@ -1,0 +1,92 @@
+@page "/about"
+@attribute [StreamRendering]
+@inject IAboutRepository AboutRepo
+
+<PageTitle>About · Brands Advisory</PageTitle>
+
+@if (_about is null)
+{
+    <div class="d-flex justify-content-center py-5">
+        <div class="spinner-border text-secondary" role="status">
+            <span class="visually-hidden">Loading…</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card-dark p-4 position-relative">
+
+        @if (IsOwner)
+        {
+            <a href="/admin/about"
+               class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-3"
+               title="Edit">
+                ✏️
+            </a>
+        }
+
+        <h1 class="fw-bold mb-2">About</h1>
+
+        @if (!string.IsNullOrEmpty(_about.Subtitle))
+        {
+            <p class="text-secondary mb-3">@_about.Subtitle</p>
+        }
+
+        <hr class="border-secondary" />
+
+        <div class="row gy-2 mb-3">
+            @if (!string.IsNullOrEmpty(_about.Location))
+            {
+                <div class="col-12 col-sm-6 d-flex align-items-center gap-2 text-secondary small">
+                    <span>📍</span>
+                    <span>@_about.Location</span>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(_about.ProfileUrl))
+            {
+                <div class="col-12 col-sm-6 d-flex align-items-center gap-2 small">
+                    <span>🌐</span>
+                    <a href="@_about.ProfileUrl" target="_blank" rel="noopener noreferrer"
+                       class="text-secondary text-decoration-none">
+                        @_about.ProfileUrl
+                    </a>
+                </div>
+            }
+        </div>
+
+        @if (_about.Links.Count > 0)
+        {
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                @foreach (var link in _about.Links)
+                {
+                    <a href="@link.Url" target="_blank" rel="noopener noreferrer"
+                       class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                        @if (!string.IsNullOrEmpty(link.Icon))
+                        {
+                            <span>@link.Icon</span>
+                        }
+                        <span>@link.Label</span>
+                    </a>
+                }
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(_about.ContactHint))
+        {
+            <p class="text-secondary small fst-italic mb-0">@_about.ContactHint</p>
+        }
+
+    </div>
+}
+
+@code {
+    [CascadingParameter(Name = "IsOwner")]
+    public bool IsOwner { get; set; }
+
+    private AboutContent? _about;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _about = await AboutRepo.GetOrCreateAsync();
+    }
+}

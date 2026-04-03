@@ -1,9 +1,8 @@
 namespace BrandsAdvisory.Core.Models;
 
-public class AboutContent
+public class AboutContent : CosmosDocument
 {
-    public string Id { get; set; } = "about";
-    public string Type { get; set; } = "about";
+    public override string Type => "about";
     public string Subtitle { get; set; } = string.Empty;
     public string ContactHint { get; set; } = string.Empty;
     public string ProfileUrl { get; set; } = string.Empty;

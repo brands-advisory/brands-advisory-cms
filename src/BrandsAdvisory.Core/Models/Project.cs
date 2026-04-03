@@ -1,9 +1,8 @@
 namespace BrandsAdvisory.Core.Models;
 
-public class Project
+public class Project : CosmosDocument
 {
-    public string Id { get; set; } = string.Empty;
-    public string Type { get; set; } = "project";
+    public override string Type => "project";
     public string Title { get; set; } = string.Empty;
     public string Customer { get; set; } = string.Empty;
     public string Period { get; set; } = string.Empty;

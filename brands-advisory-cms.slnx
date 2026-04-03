@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/BrandsAdvisory.Core/BrandsAdvisory.Core.csproj" />
+    <Project Path="src/BrandsAdvisory.Infrastructure/BrandsAdvisory.Infrastructure.csproj" />
     <Project Path="src/BrandsAdvisory/BrandsAdvisory.csproj" />
   </Folder>
 </Solution>

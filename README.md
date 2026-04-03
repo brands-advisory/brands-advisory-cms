@@ -53,6 +53,43 @@ All content is stored in a single Cosmos DB container (`content`) with a `type` 
 
 ---
 
+## Project Structure
+
+```
+brands-advisory-cms.slnx
+src/
+├── BrandsAdvisory/             # Blazor Web App (UI layer)
+│   ├── Components/
+│   │   ├── Layout/             # NavMenu, MainLayout
+│   │   └── Pages/              # Public pages + Admin pages
+│   └── Program.cs
+├── BrandsAdvisory.Core/        # Domain layer (no infrastructure dependencies)
+│   ├── Interfaces/
+│   │   ├── IRepository.cs          # Generic base repository interface
+│   │   ├── IArticleRepository.cs
+│   │   ├── IProjectRepository.cs
+│   │   ├── IAboutRepository.cs
+│   │   └── IOwnerService.cs
+│   ├── Models/
+│   │   ├── CosmosDocument.cs       # Base class for all Cosmos DB documents
+│   │   ├── Article.cs
+│   │   ├── Project.cs
+│   │   ├── AboutContent.cs
+│   │   └── ProfileLink.cs
+│   └── Services/
+│       └── OwnerService.cs
+└── BrandsAdvisory.Infrastructure/  # Data access layer (Cosmos DB)
+    └── Repositories/
+        ├── CosmosRepository.cs     # Generic base repository (Cosmos DB SDK)
+        ├── ArticleRepository.cs
+        ├── ProjectRepository.cs
+        └── AboutRepository.cs
+```
+
+The UI project depends only on `Core` interfaces. All Cosmos DB access is encapsulated in `Infrastructure`, registered via dependency injection in `Program.cs`.
+
+---
+
 ## Setup
 
 ### Required Azure Resources

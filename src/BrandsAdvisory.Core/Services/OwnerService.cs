@@ -1,3 +1,4 @@
+using BrandsAdvisory.Core.Interfaces;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 

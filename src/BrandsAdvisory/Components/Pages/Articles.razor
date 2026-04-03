@@ -1,6 +1,6 @@
 @page "/articles"
 @attribute [StreamRendering]
-@inject ICosmosDbService CosmosDb
+@inject IArticleRepository ArticleRepo
 
 <PageTitle>Articles · Brands Advisory</PageTitle>
 
@@ -72,6 +72,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _articles = await CosmosDb.GetArticlesAsync(publishedOnly: !IsOwner);
+        _articles = IsOwner
+            ? await ArticleRepo.GetAllAsync()
+            : await ArticleRepo.GetPublishedAsync();
     }
 }

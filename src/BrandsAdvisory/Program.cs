@@ -1,8 +1,11 @@
 using BrandsAdvisory.Components;
+using BrandsAdvisory.Core.Interfaces;
 using BrandsAdvisory.Core.Services;
+using BrandsAdvisory.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
 using Syncfusion.Blazor;
 
@@ -18,7 +21,27 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
 
-builder.Services.AddSingleton<ICosmosDbService, CosmosDbService>();
+// Cosmos DB client (singleton, thread-safe)
+builder.Services.AddSingleton(sp =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    return new CosmosClient(
+        cfg["CosmosDb:EndpointUri"]!,
+        cfg["CosmosDb:PrimaryKey"]!,
+        new CosmosClientOptions
+        {
+            SerializerOptions = new CosmosSerializationOptions
+            {
+                PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+            }
+        });
+});
+
+// Repositories
+builder.Services.AddSingleton<IArticleRepository, ArticleRepository>();
+builder.Services.AddSingleton<IProjectRepository, ProjectRepository>();
+builder.Services.AddSingleton<IAboutRepository, AboutRepository>();
+
 builder.Services.AddScoped<IOwnerService, OwnerService>();
 
 var app = builder.Build();

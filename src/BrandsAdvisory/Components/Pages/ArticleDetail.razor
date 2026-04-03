@@ -1,6 +1,6 @@
 @page "/articles/{slug}"
 @attribute [StreamRendering]
-@inject ICosmosDbService CosmosDb
+@inject IArticleRepository ArticleRepo
 
 @if (_article is null && !_loaded)
 {
@@ -74,7 +74,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _article = await CosmosDb.GetArticleBySlugAsync(Slug);
+        _article = await ArticleRepo.GetBySlugAsync(Slug);
         _loaded = true;
     }
 }

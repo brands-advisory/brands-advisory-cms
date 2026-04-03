@@ -4,7 +4,7 @@
 @using Syncfusion.Blazor.Grids
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IOwnerService OwnerService
-@inject ICosmosDbService CosmosDb
+@inject IProjectRepository ProjectRepo
 @inject NavigationManager Nav
 
 <PageTitle>Edit Projects · Brands Advisory</PageTitle>
@@ -82,12 +82,13 @@ else
             return;
         }
 
-        var projects = await CosmosDb.GetProjectsAsync();
+        var projects = await ProjectRepo.GetAllAsync();
         _rows = projects.Select(ProjectRow.FromProject).ToList();
     }
 
     private void OnActionBegin(ActionEventArgs<ProjectRow> args)
     {
+        if (args.Data is null) return;
         if (args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
         {
             args.Data.Id = Guid.NewGuid().ToString();
@@ -96,6 +97,7 @@ else
 
     private void OnActionComplete(ActionEventArgs<ProjectRow> args)
     {
+        if (args.Data is null) return;
         if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
         {
             _modified.Add(args.Data.Id);
@@ -114,12 +116,12 @@ else
 
         foreach (var row in _rows!.Where(r => _modified.Contains(r.Id)))
         {
-            await CosmosDb.UpsertProjectAsync(row.ToProject());
+            await ProjectRepo.UpsertAsync(row.ToProject());
         }
 
         foreach (var id in _deleted.Where(id => !string.IsNullOrEmpty(id)))
         {
-            await CosmosDb.DeleteProjectAsync(id);
+            await ProjectRepo.DeleteAsync(id);
         }
 
         Nav.NavigateTo("/projects");
@@ -151,7 +153,6 @@ else
         public Project ToProject() => new()
         {
             Id = string.IsNullOrEmpty(Id) ? Guid.NewGuid().ToString() : Id,
-            Type = "project",
             Title = Title,
             Customer = Customer,
             Period = Period,

@@ -1,9 +1,8 @@
 namespace BrandsAdvisory.Core.Models;
 
-public class Article
+public class Article : CosmosDocument
 {
-    public string Id { get; set; } = string.Empty;
-    public string Type { get; set; } = "article";
+    public override string Type => "article";
     public string Title { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string Summary { get; set; } = string.Empty;

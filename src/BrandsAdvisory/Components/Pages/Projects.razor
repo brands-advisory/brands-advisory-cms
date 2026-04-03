@@ -1,6 +1,6 @@
 @page "/projects"
 @attribute [StreamRendering]
-@inject ICosmosDbService CosmosDb
+@inject IProjectRepository ProjectRepo
 
 <PageTitle>Projects · Brands Advisory</PageTitle>
 
@@ -61,6 +61,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _projects = await CosmosDb.GetProjectsAsync();
+        _projects = await ProjectRepo.GetAllAsync();
     }
 }
