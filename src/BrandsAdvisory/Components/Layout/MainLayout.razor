@@ -1,17 +1,97 @@
 ﻿@inherits LayoutComponentBase
+@inject IOwnerService OwnerService
+@inject IHttpContextAccessor HttpContextAccessor
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<CascadingValue Value="@_isOwner" Name="IsOwner">
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    <nav class="navbar navbar-dark bg-dark sticky-top border-bottom border-secondary">
+        <div class="container" style="max-width: 900px;">
+
+            <!-- Brand: avatar + two-line title (always visible) -->
+            <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none" href="/">
+                <img src="/images/avatar.jpg"
+                     class="rounded-circle"
+                     width="40" height="40"
+                     alt="Brands Advisory avatar" />
+                <div class="lh-sm">
+                    <div class="fw-bold text-white" style="font-size: 0.875rem;">Brands Advisory</div>
+                    <div class="text-secondary" style="font-size: 0.7rem;">Freelance IT Consulting</div>
+                </div>
+            </a>
+
+            <!-- Hamburger toggler (visible on mobile) -->
+            <button class="navbar-toggler border-secondary"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNav"
+                    aria-controls="mainNav"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Collapsible nav -->
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto flex-row flex-wrap gap-2 my-2 my-md-0">
+                    <li class="nav-item">
+                        <NavLink href="/"
+                                 Match="NavLinkMatch.All"
+                                 class="text-secondary text-decoration-none px-3 py-1 rounded-pill"
+                                 ActiveClass="btn btn-dark border border-secondary">
+                            About
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink href="/projects"
+                                 class="text-secondary text-decoration-none px-3 py-1 rounded-pill"
+                                 ActiveClass="btn btn-dark border border-secondary">
+                            Projects
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink href="/articles"
+                                 class="text-secondary text-decoration-none px-3 py-1 rounded-pill"
+                                 ActiveClass="btn btn-dark border border-secondary">
+                            Articles
+                        </NavLink>
+                    </li>
+                </ul>
+
+                <div class="d-flex my-2 my-md-0">
+                    <AuthorizeView>
+                        <Authorized>
+                            <form method="post" action="/logout">
+                                <AntiforgeryToken />
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+                            </form>
+                        </Authorized>
+                        <NotAuthorized>
+                            <a href="/login" class="btn btn-outline-secondary btn-sm">Login</a>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            </div>
+
         </div>
+    </nav>
 
-        <article class="content px-4">
-            @Body
-        </article>
+    <main class="container py-4" style="max-width: 900px;">
+        @Body
     </main>
-</div>
+
+    <footer class="text-center text-secondary py-3 small border-top border-secondary">
+        &copy; 2026 Brands Advisory &middot;
+        <a href="/legal" class="text-secondary">Legal</a>
+    </footer>
+
+</CascadingValue>
+
+@code {
+    private bool _isOwner;
+
+    protected override void OnInitialized()
+    {
+        var user = HttpContextAccessor.HttpContext?.User;
+        _isOwner = user is not null && OwnerService.IsOwner(user);
+    }
+}

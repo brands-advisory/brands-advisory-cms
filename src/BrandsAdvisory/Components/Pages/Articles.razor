@@ -1,0 +1,77 @@
+@page "/articles"
+@attribute [StreamRendering]
+@inject ICosmosDbService CosmosDb
+
+<PageTitle>Articles · Brands Advisory</PageTitle>
+
+@if (IsOwner)
+{
+    <div class="d-flex justify-content-end mb-3">
+        <a href="/admin/articles/new" class="btn btn-outline-secondary btn-sm">+ New Article</a>
+    </div>
+}
+
+@if (_articles is null)
+{
+    <div class="d-flex justify-content-center py-5">
+        <div class="spinner-border text-secondary" role="status">
+            <span class="visually-hidden">Loading…</span>
+        </div>
+    </div>
+}
+else if (_articles.Count == 0)
+{
+    <p class="text-secondary text-center py-5">No articles published yet.</p>
+}
+else
+{
+    <div class="d-flex flex-column gap-3">
+        @foreach (var article in _articles)
+        {
+            <div class="card-dark p-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div>
+                        <h5 class="fw-bold mb-1">
+                            <a href="/articles/@article.Slug"
+                               class="text-white text-decoration-none">
+                                @article.Title
+                            </a>
+                        </h5>
+                        @if (article.PublishedDate.HasValue)
+                        {
+                            <div class="text-secondary small mb-2">
+                                @article.PublishedDate.Value.ToString("MMMM d, yyyy")
+                            </div>
+                        }
+                    </div>
+                    @if (IsOwner)
+                    {
+                        <a href="/admin/articles/@article.Id"
+                           class="btn btn-sm btn-outline-secondary">✏️</a>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(article.Summary))
+                {
+                    <p class="text-secondary small mb-2">@article.Summary</p>
+                }
+
+                <a href="/articles/@article.Slug" class="text-secondary small text-decoration-none">
+                    Read more →
+                </a>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [CascadingParameter(Name = "IsOwner")]
+    public bool IsOwner { get; set; }
+
+    private List<Article>? _articles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _articles = await CosmosDb.GetArticlesAsync(publishedOnly: !IsOwner);
+    }
+}
