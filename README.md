@@ -29,17 +29,19 @@ The site is publicly readable (Static SSR for SEO) and supports owner-only editi
 
 ### Owner-Only Editing
 
-There is no separate admin role or user database. The site owner is identified by their **Entra ID Object ID (OID)** claim, configured via `Owner:Oid`. This OID is compared on every request server-side via `IOwnerService` — UI visibility alone is never relied upon.
+There is no separate admin user database. The site owner is identified by the **`SiteAdmin` App Role** assigned in the Entra ID Enterprise Application. The role is checked on every request server-side via `IOwnerService` — UI visibility alone is never relied upon.
 
 ```
 User logs in via Entra ID
        ↓
-OID claim extracted from token
+App Role claims included in token
        ↓
-IOwnerService.IsOwner() compares against Owner:Oid config
+IOwnerService.IsOwner() checks user.IsInRole("SiteAdmin")
        ↓
 IsOwner cascaded as bool to all Blazor components
 ```
+
+To grant access: **Entra ID → Enterprise Applications → your app → Users and groups → Add user/group → assign role `SiteAdmin`**.
 
 ### Data Model
 
@@ -118,19 +120,20 @@ All sensitive values use the `__PLACEHOLDER__` convention and must never be comm
 |---|---|---|
 | `__TENANT_ID__` | Entra ID → App registration → Overview | `AzureAd:TenantId` |
 | `__CLIENT_ID__` | Entra ID → App registration → Overview | `AzureAd:ClientId` |
-| `__CERT_THUMBPRINT__` | Certificate in local store or Key Vault | `AzureAd:ClientCertificates:0:CertificateThumbprint` |
+| `__KEYVAULT_URI__` | Key Vault → Overview → Vault URI | `AzureAd:ClientCertificates:0:KeyVaultUrl` |
+| `__KEYVAULT_CERT_NAME__` | Key Vault → Certificates → certificate name | `AzureAd:ClientCertificates:0:KeyVaultCertificateName` |
 | `__COSMOS_ENDPOINT__` | Cosmos DB account → Overview → URI | `CosmosDb:EndpointUri` |
-| `__COSMOS_KEY__` | Cosmos DB account → Keys → Primary Key | `CosmosDb:PrimaryKey` |
-| `__OWNER_OID__` | Entra ID → Users → your user → Object ID | `Owner:Oid` |
 
-> **Note:** The app uses certificate-based authentication (`StoreWithThumbprint`) instead of a client secret. Install the certificate in your local certificate store and in the Azure App Service before running.
+> **Note:** The app uses certificate-based authentication via **Azure Key Vault** (`SourceType: KeyVault`). `Microsoft.Identity.Web` loads the certificate automatically at startup using the configured Managed Identity (production) or Azure CLI credentials (local development via `az login`). Assign the **Key Vault Certificate User** role to the App Service Managed Identity and to your developer account in the Key Vault access policies.
 
-**Local development** — copy `secrets.json.example` to `secrets.sh`, fill in the values, then run it from the repository root:
+> **Cosmos DB access uses Managed Identity** (`DefaultAzureCredential`) — no primary key is stored anywhere. Locally, `az login` credentials are used automatically. In production, the App Service System-Assigned Managed Identity receives the **Cosmos DB Built-in Data Contributor** role via the `cosmos-rbac` Bicep module.
+
+**Local development** — copy `set-secrets.sh.example` to `set-secrets.sh`, fill in the values, then run it from the repository root:
 
 ```bash
-cp secrets.json.example secrets.sh
-# Edit secrets.sh and replace all __PLACEHOLDER__ values
-bash secrets.sh
+cp set-secrets.sh.example set-secrets.sh
+# Edit set-secrets.sh and replace all __PLACEHOLDER__ values
+bash set-secrets.sh
 ```
 
 This uses [`dotnet user-secrets`](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets), which stores secrets outside the project directory and never touches source control.

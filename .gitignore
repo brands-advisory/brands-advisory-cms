@@ -55,5 +55,12 @@ nunit-*.xml
 
 # Local development settings (may contain secrets)
 appsettings.Development.json
-secrets.sh
-secrets.ps1
+set-secrets.sh
+set-secrets.ps1
+
+# Bicep compiled output
+infra/main.json
+infra/modules/*.json
+
+# Bicep local parameter files (may contain secrets)
+infra/*.local.bicepparam

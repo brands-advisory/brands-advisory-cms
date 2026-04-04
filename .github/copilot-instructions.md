@@ -35,6 +35,8 @@
 - Owner-only features must always check IOwnerService,
   never rely on UI visibility alone
 - All data access goes through ICosmosDbService
+- Cosmos DB access uses Managed Identity via 
+  DefaultAzureCredential - never use primary keys
 
 ## Documentation
 - Keep README.md up to date when adding new features, 
@@ -51,7 +53,7 @@
 ## Local Development Secrets
 - Use dotnet user-secrets for all local development secrets
 - Never use appsettings.Development.json for secrets
-- A secrets.json.example file in the repository root 
+- A set-secrets.sh.example file in the repository root 
   documents which secrets are required
 - Run `dotnet user-secrets init` is already configured 
   in the .csproj with UserSecretsId "brands-advisory-cms"

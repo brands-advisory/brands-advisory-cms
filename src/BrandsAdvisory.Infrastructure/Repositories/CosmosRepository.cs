@@ -1,3 +1,4 @@
+using Azure.Identity;
 using BrandsAdvisory.Core.Interfaces;
 using BrandsAdvisory.Core.Models;
 using Microsoft.Azure.Cosmos;
