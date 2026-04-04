@@ -131,7 +131,7 @@ Public pages use Static SSR and depend only on `Core` interfaces, served from Co
 
 ### Configuration Placeholders
 
-All sensitive values use the `__PLACEHOLDER__` convention and must never be committed to source control. Set them in `appsettings.Development.json` locally and in **Azure App Service → Configuration** for production.
+All sensitive values use the `__PLACEHOLDER__` convention and must never be committed to source control. Set them via [`dotnet user-secrets`](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) locally (see [Local Development](#local-development)) and in **Azure App Service → Configuration** for production.
 
 | Placeholder | Where to find it | Config key |
 |---|---|---|
@@ -140,6 +140,9 @@ All sensitive values use the `__PLACEHOLDER__` convention and must never be comm
 | `__KEYVAULT_URI__` | Key Vault → Overview → Vault URI | `AzureAd:ClientCertificates:0:KeyVaultUrl` |
 | `__KEYVAULT_CERT_NAME__` | Key Vault → Certificates → certificate name | `AzureAd:ClientCertificates:0:KeyVaultCertificateName` |
 | `__COSMOS_ENDPOINT__` | Cosmos DB account → Overview → URI | `CosmosDb:EndpointUri` |
+| `__DATABASE_ID__` | The Cosmos DB database name (e.g. `brands-advisory`) | `CosmosDb:DatabaseId` |
+| `__CONTAINER_NAME__` | The Cosmos DB container name (e.g. `content`) | `CosmosDb:ContainerName` |
+| `__SYNCFUSION_LICENSE_KEY__` | [Syncfusion License & Downloads](https://www.syncfusion.com/account/downloads) → Community license key | `Syncfusion:LicenseKey` |
 
 > **Note:** The app uses certificate-based authentication via **Azure Key Vault** (`SourceType: KeyVault`). `Microsoft.Identity.Web` loads the certificate automatically at startup using the configured Managed Identity (production) or Azure CLI credentials (local development via `az login`). Assign the **Key Vault Certificate User** role to the App Service Managed Identity and to your developer account in the Key Vault access policies.
 
