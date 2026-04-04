@@ -25,7 +25,7 @@ The site is publicly readable (Static SSR for SEO) and supports owner-only editi
 ### Render Modes
 
 - **Static SSR** is the default render mode for all public pages (`/`, `/projects`, `/articles`, `/articles/{slug}`). This ensures fast initial load times and full SEO indexability without JavaScript requirements.
-- **InteractiveServer** is used only for admin edit pages (`/admin/projects`, `/admin/articles/{id}`) that require Syncfusion Grid and Rich Text Editor interactivity.
+- **InteractiveWebAssembly** is used for admin edit pages (`/admin/about`, `/admin/projects`, `/admin/articleeditor/{id?}`) that require Syncfusion Grid and Rich Text Editor interactivity. These pages live in the `BrandsAdvisory.Client` Blazor WebAssembly project and are served by the host server. Data is fetched via minimal API endpoints (`/api/about`, `/api/projects`, `/api/articles`) that require the `SiteAdmin` role.
 
 ### Owner-Only Editing
 
@@ -60,10 +60,27 @@ All content is stored in a single Cosmos DB container (`content`) with a `type` 
 ```
 brands-advisory-cms.slnx
 src/
-├── BrandsAdvisory/             # Blazor Web App (UI layer)
+├── BrandsAdvisory/             # Blazor Web App host (SSR + API)
 │   ├── Components/
 │   │   ├── Layout/             # NavMenu, MainLayout
-│   │   └── Pages/              # Public pages + Admin pages
+│   │   └── Pages/              # Public pages (Static SSR)
+│   ├── Endpoints/              # Minimal API endpoints for admin data
+│   │   ├── AboutEndpoints.cs
+│   │   ├── ArticleEndpoints.cs
+│   │   └── ProjectEndpoints.cs
+│   ├── Models/
+│   │   └── UserInfo.cs         # DTO for /api/user (auth state for WASM)
+│   └── Program.cs
+├── BrandsAdvisory.Client/      # Blazor WebAssembly client (admin pages)
+│   ├── Pages/Admin/            # Admin edit pages (InteractiveWebAssembly)
+│   │   ├── AboutEditor.razor
+│   │   ├── ArticleEditor.razor
+│   │   └── Projects.razor
+│   ├── Services/
+│   │   ├── ApiAuthenticationStateProvider.cs  # Calls /api/user
+│   │   ├── HttpAboutRepository.cs
+│   │   ├── HttpArticleRepository.cs
+│   │   └── HttpProjectRepository.cs
 │   └── Program.cs
 ├── BrandsAdvisory.Core/        # Domain layer (no infrastructure dependencies)
 │   ├── Interfaces/
@@ -88,7 +105,7 @@ src/
         └── AboutRepository.cs
 ```
 
-The UI project depends only on `Core` interfaces. All Cosmos DB access is encapsulated in `Infrastructure`, registered via dependency injection in `Program.cs`.
+Public pages use Static SSR and depend only on `Core` interfaces, served from Cosmos DB via `Infrastructure`. Admin pages run as WebAssembly in `BrandsAdvisory.Client` and call the host server's minimal API endpoints — all protected by the `SiteAdmin` role.
 
 ---
 
