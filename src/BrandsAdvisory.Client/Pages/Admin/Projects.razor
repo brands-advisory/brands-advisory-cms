@@ -1,7 +1,6 @@
 @page "/admin/projects"
-@rendermode InteractiveServer
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @attribute [Authorize]
-@using Syncfusion.Blazor.Grids
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IOwnerService OwnerService
 @inject IProjectRepository ProjectRepo
@@ -90,9 +89,7 @@ else
     {
         if (args.Data is null) return;
         if (args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
-        {
             args.Data.Id = Guid.NewGuid().ToString();
-        }
     }
 
     private void OnActionComplete(ActionEventArgs<ProjectRow> args)
@@ -115,14 +112,10 @@ else
         _saving = true;
 
         foreach (var row in _rows!.Where(r => _modified.Contains(r.Id)))
-        {
             await ProjectRepo.UpsertAsync(row.ToProject());
-        }
 
         foreach (var id in _deleted.Where(id => !string.IsNullOrEmpty(id)))
-        {
             await ProjectRepo.DeleteAsync(id);
-        }
 
         Nav.NavigateTo("/projects");
     }

@@ -1,5 +1,7 @@
 using Azure.Identity;
 using BrandsAdvisory.Components;
+using BrandsAdvisory.Endpoints;
+using BrandsAdvisory.Models;
 using Microsoft.AspNetCore.DataProtection;
 using BrandsAdvisory.Core.Interfaces;
 using BrandsAdvisory.Core.Services;
@@ -11,12 +13,21 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Identity.Web;
 using Syncfusion.Blazor;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Register Syncfusion Community License key.
+// Set via user-secrets locally: dotnet user-secrets set "Syncfusion:LicenseKey" "..."
+// Set via App Service Configuration in production: Syncfusion__LicenseKey
+var syncfusionKey = builder.Configuration["Syncfusion:LicenseKey"];
+if (!string.IsNullOrEmpty(syncfusionKey))
+    Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncfusionKey);
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents()
+    .AddInteractiveWebAssemblyComponents();
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddCascadingAuthenticationState();
@@ -50,19 +61,15 @@ if (builder.Environment.IsDevelopment())
 
 builder.Services.AddMicrosoftIdentityWebAppAuthentication(builder.Configuration);
 
-// Fix for GitHub Codespaces and local HTTP development.
-// Uses PostConfigure so our settings run AFTER Microsoft.Identity.Web's
+// Use PostConfigure so our settings run AFTER Microsoft.Identity.Web's
 // own PostConfigure, which would otherwise override Configure calls.
 //
-// Root cause of "Correlation failed":
-//   ASP.NET Core sets CorrelationCookie with SameSite=None by default.
-//   Chrome 80+ rejects SameSite=None cookies that lack the Secure attribute.
-//   Over HTTP (localhost dev), SecurePolicy=SameAsRequest omits Secure,
-//   so Chrome silently drops the cookie → no correlation cookie on callback.
-//
-// Fix: SameSite=Lax is accepted by all browsers without requiring Secure,
-//   and covers the OIDC code flow (callback is a plain GET redirect).
-//   SecurePolicy=SameAsRequest adds Secure automatically on HTTPS (production).
+// SameSite=None + SecurePolicy=Always is required in reverse proxy environments
+// (production, GitHub Codespaces) where the OIDC callback crosses a site boundary.
+// On Windows localhost (direct HTTPS), browser defaults apply — no override needed.
+var isReverseProxy = !builder.Environment.IsDevelopment() ||
+    Environment.GetEnvironmentVariable("CODESPACES") == "true";
+
 builder.Services.PostConfigure<CookieAuthenticationOptions>(
     CookieAuthenticationDefaults.AuthenticationScheme, options =>
     {
@@ -73,10 +80,13 @@ builder.Services.PostConfigure<CookieAuthenticationOptions>(
 builder.Services.PostConfigure<OpenIdConnectOptions>(
     OpenIdConnectDefaults.AuthenticationScheme, options =>
     {
-        options.NonceCookie.SameSite = SameSiteMode.Lax;
-        options.NonceCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
-        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        if (isReverseProxy)
+        {
+            options.NonceCookie.SameSite = SameSiteMode.None;
+            options.NonceCookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.CorrelationCookie.SameSite = SameSiteMode.None;
+            options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+        }
 
         // Fix for GitHub Codespaces: ASP.NET Core binds to 127.0.0.1
         // internally but Entra ID only accepts localhost for http URIs.
@@ -168,7 +178,34 @@ app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    .AddInteractiveServerRenderMode()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(BrandsAdvisory.Client._Imports).Assembly);
+
+// User info endpoint for WASM auth state
+app.MapGet("/api/user", (HttpContext context) =>
+{
+    if (context.User.Identity?.IsAuthenticated != true)
+        return Results.Ok(new UserInfo { IsAuthenticated = false });
+
+    var roles = context.User.Claims
+        .Where(c => c.Type is ClaimTypes.Role or "roles")
+        .Select(c => c.Value)
+        .Distinct()
+        .ToList();
+
+    return Results.Ok(new UserInfo
+    {
+        IsAuthenticated = true,
+        Name = context.User.Identity.Name ?? string.Empty,
+        Roles = roles
+    });
+}).AllowAnonymous();
+
+// Admin API endpoints (require SiteAdmin role; called by WASM client)
+app.MapAboutEndpoints();
+app.MapProjectEndpoints();
+app.MapArticleEndpoints();
 
 // Login: redirect to Microsoft login
 app.MapGet("/login", (string? returnUrl) =>

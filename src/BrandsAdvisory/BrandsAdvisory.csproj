@@ -10,11 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BrandsAdvisory.Client\BrandsAdvisory.Client.csproj" />
     <ProjectReference Include="..\BrandsAdvisory.Core\BrandsAdvisory.Core.csproj" />
     <ProjectReference Include="..\BrandsAdvisory.Infrastructure\BrandsAdvisory.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
     <PackageReference Include="Microsoft.Identity.Web" Version="*" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="*" />
     <PackageReference Include="Syncfusion.Blazor.Grid" Version="*" />

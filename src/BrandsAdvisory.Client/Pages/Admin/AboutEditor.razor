@@ -1,0 +1,125 @@
+@page "/admin/about"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@attribute [Authorize]
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IOwnerService OwnerService
+@inject IAboutRepository AboutRepo
+@inject NavigationManager Nav
+
+<PageTitle>Edit About · Brands Advisory</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Edit About</h2>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" @onclick="Cancel">Cancel</button>
+        <button class="btn btn-outline-light btn-sm" @onclick="SaveAsync" disabled="@_saving">
+            @(_saving ? "Saving…" : "Save")
+        </button>
+    </div>
+</div>
+
+@if (_about is null)
+{
+    <div class="d-flex justify-content-center py-5">
+        <div class="spinner-border text-secondary" role="status">
+            <span class="visually-hidden">Loading…</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card-dark p-4 d-flex flex-column gap-3 mb-4">
+
+        <div>
+            <label class="form-label text-secondary small">Subtitle</label>
+            <textarea class="form-control bg-dark text-white border-secondary"
+                      rows="3"
+                      @bind="_about.Subtitle" />
+        </div>
+
+        <div>
+            <label class="form-label text-secondary small">Location</label>
+            <input class="form-control bg-dark text-white border-secondary"
+                   @bind="_about.Location" />
+        </div>
+
+        <div>
+            <label class="form-label text-secondary small">Profile URL</label>
+            <input class="form-control bg-dark text-white border-secondary"
+                   type="url"
+                   @bind="_about.ProfileUrl" />
+        </div>
+
+        <div>
+            <label class="form-label text-secondary small">Contact Hint</label>
+            <input class="form-control bg-dark text-white border-secondary"
+                   @bind="_about.ContactHint" />
+        </div>
+
+    </div>
+
+    <h5 class="fw-bold mb-3">Profile Links</h5>
+
+    <div class="card-dark p-3 mb-3">
+        @foreach (var (link, index) in _about.Links.Select((l, i) => (l, i)))
+        {
+            <div class="row g-2 align-items-center mb-2">
+                <div class="col-auto" style="width: 60px;">
+                    <input class="form-control form-control-sm bg-dark text-white border-secondary text-center"
+                           placeholder="Icon"
+                           value="@link.Icon"
+                           @oninput="e => link.Icon = e.Value?.ToString() ?? string.Empty" />
+                </div>
+                <div class="col-3">
+                    <input class="form-control form-control-sm bg-dark text-white border-secondary"
+                           placeholder="Label"
+                           value="@link.Label"
+                           @oninput="e => link.Label = e.Value?.ToString() ?? string.Empty" />
+                </div>
+                <div class="col">
+                    <input class="form-control form-control-sm bg-dark text-white border-secondary"
+                           placeholder="https://…"
+                           value="@link.Url"
+                           @oninput="e => link.Url = e.Value?.ToString() ?? string.Empty" />
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveLink(index)">✕</button>
+                </div>
+            </div>
+        }
+
+        <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="AddLink">+ Add link</button>
+    </div>
+}
+
+@code {
+    private AboutContent? _about;
+    private bool _saving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (!OwnerService.IsOwner(authState.User))
+        {
+            Nav.NavigateTo("/");
+            return;
+        }
+
+        _about = await AboutRepo.GetOrCreateAsync();
+    }
+
+    private void AddLink() => _about!.Links.Add(new ProfileLink());
+
+    private void RemoveLink(int index) => _about!.Links.RemoveAt(index);
+
+    private async Task SaveAsync()
+    {
+        if (_about is null) return;
+        _saving = true;
+        await AboutRepo.UpsertAsync(_about);
+        _saving = false;
+        Nav.NavigateTo("/");
+    }
+
+    private void Cancel() => Nav.NavigateTo("/");
+}

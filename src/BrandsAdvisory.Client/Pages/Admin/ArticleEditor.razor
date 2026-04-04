@@ -1,7 +1,6 @@
 @page "/admin/articles/{id}"
-@rendermode InteractiveServer
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @attribute [Authorize]
-@using Syncfusion.Blazor.RichTextEditor
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IOwnerService OwnerService
 @inject IArticleRepository ArticleRepo

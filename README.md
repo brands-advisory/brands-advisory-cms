@@ -162,16 +162,49 @@ Before going live, fill in the placeholder values in [`src/BrandsAdvisory/Compon
 
 ## Local Development
 
-```bash
-# Restore and build
-dotnet restore
-dotnet build
+### Prerequisites
 
-# Run the app
-dotnet run --project src/BrandsAdvisory
+**1. Trust the local HTTPS developer certificate** (once per machine):
+
+```bash
+dotnet dev-certs https --trust
 ```
 
-The app starts at `https://localhost:7000` (or as configured in `launchSettings.json`).
+Without this, the OIDC callback over HTTPS will fail with "Correlation failed" in the browser.
+
+**2. Add the local redirect URI to the Entra ID App Registration:**
+
+In the Azure Portal → **App registrations** → your app → **Authentication** → add:
+
+```
+https://localhost:7000/signin-oidc
+```
+
+**3. Log in with the Azure CLI** (once per session, needed for Key Vault certificate loading and Cosmos DB access via `DefaultAzureCredential`):
+
+```bash
+az login
+```
+
+**4. Set local secrets** (once, see [Setup](#setup) above):
+
+```bash
+cp set-secrets.sh.example set-secrets.sh
+# Edit set-secrets.sh and replace all __PLACEHOLDER__ values
+bash set-secrets.sh
+```
+
+### Running the app
+
+Always use the `https` profile — the OIDC flow requires HTTPS for cookies to work correctly:
+
+```bash
+dotnet run --project src/BrandsAdvisory --launch-profile https
+```
+
+The app starts at `https://localhost:7000`.
+
+> **Note:** Running with `--launch-profile http` (plain HTTP) will cause "Correlation failed" on the login callback because secure cookies cannot be set over HTTP.
 
 ---
 
