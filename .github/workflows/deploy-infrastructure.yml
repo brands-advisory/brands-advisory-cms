@@ -1,7 +1,12 @@
 # Required GitHub Secrets:
-# AZURE_CREDENTIALS          - Service principal JSON
-#                              (sp-brands-advisory-cms-github)
+# AZURE_CLIENT_ID            - App ID of sp-brands-advisory-cms-github
+# TENANT_ID            - Entra ID Tenant ID
 # AZURE_SUBSCRIPTION_ID      - Azure Subscription ID
+# Note: OIDC Federated Credentials - no client secret needed
+#
+# Authentication: OIDC Federated Credentials (no secrets)
+# Setup: Add federated credential in Entra ID for this repo/branch
+# See: https://aka.ms/azureactions-oidc
 # AZURE_RESOURCE_GROUP       - rg-brands-advisory
 # APP_NAME                   - brands-advisory
 # PLAN_NAME                  - plan-brands-advisory
@@ -31,6 +36,9 @@ on:
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
     - name: Checkout repository
@@ -39,12 +47,13 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Deploy Bicep template
       uses: azure/arm-deploy@v2
       with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
         template: infra/main.bicep
         parameters: >
