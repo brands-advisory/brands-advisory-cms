@@ -235,7 +235,6 @@ Add the following secrets in `Settings → Secrets and variables → Actions →
 | `COSMOS_DATABASE_ID` | Database name |
 | `COSMOS_CONTAINER_NAME` | Container name |
 | `KEY_VAULT_NAME` | Key Vault name |
-| `KEY_VAULT_URL` | Key Vault URI |
 | `CERT_NAME` | Certificate name in Key Vault |
 | `CLIENT_ID` | brands-advisory-cms App Registration Client ID |
 | `TENANT_ID` | Entra ID Tenant ID |
@@ -269,7 +268,7 @@ This deploys:
 - Key Vault RBAC — **Key Vault Certificate User** role for the Web App Managed Identity
 - Cosmos DB RBAC — **Built-in Data Contributor** role for the Web App Managed Identity
 
-> **Note:** The Key Vault itself is not created by the Bicep template. It must already exist and the certificate must be uploaded under the configured name before deploying the application.
+> **Note:** The Key Vault is created automatically by the Bicep template. After the first deployment, upload the authentication certificate to Key Vault manually: **Azure Portal → kv-{name} → Certificates → Generate/Import**. The Key Vault URI is an output of the Bicep deployment and does not need to be configured separately.
 
 ### Legal Page
 

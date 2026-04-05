@@ -18,7 +18,6 @@ param cosmosContainerName = '__CONTAINER_NAME__'
 
 // Key Vault
 param keyVaultName = '__KEY_VAULT_NAME__'
-param keyVaultUrl = '__KEY_VAULT_URL__'
 param keyVaultCertificateName = '__CERT_NAME__'
 
 // Entra ID / App Registration

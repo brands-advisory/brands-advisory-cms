@@ -47,7 +47,7 @@ if ($Secrets -or $All) {
 
     dotnet user-secrets set "AzureAd:TenantId"                                        $config.TenantId             -p $project
     dotnet user-secrets set "AzureAd:ClientId"                                        $config.ClientId             -p $project
-    dotnet user-secrets set "AzureAd:ClientCertificates:0:KeyVaultUrl"                $config.KeyVaultUrl          -p $project
+    dotnet user-secrets set "AzureAd:ClientCertificates:0:KeyVaultUrl"                "https://$($config.KeyVaultName).vault.azure.net" -p $project
     dotnet user-secrets set "AzureAd:ClientCertificates:0:KeyVaultCertificateName"    $config.CertName             -p $project
     dotnet user-secrets set "CosmosDb:EndpointUri"                                    $config.CosmosEndpointUri    -p $project
     dotnet user-secrets set "CosmosDb:DatabaseId"                                     $config.CosmosDatabaseId     -p $project
@@ -74,7 +74,6 @@ if ($GitHub -or $All) {
     gh secret set COSMOS_DATABASE_ID     --body $config.CosmosDatabaseId
     gh secret set COSMOS_CONTAINER_NAME  --body $config.CosmosContainerName
     gh secret set KEY_VAULT_NAME         --body $config.KeyVaultName
-    gh secret set KEY_VAULT_URL          --body $config.KeyVaultUrl
     gh secret set CERT_NAME              --body $config.CertName
     gh secret set CLIENT_ID              --body $config.ClientId
     gh secret set TENANT_ID              --body $config.TenantId
@@ -102,7 +101,6 @@ param cosmosAccountName     = '$($config.CosmosAccountName)'
 param cosmosDatabaseId      = '$($config.CosmosDatabaseId)'
 param cosmosContainerName   = '$($config.CosmosContainerName)'
 param keyVaultName          = '$($config.KeyVaultName)'
-param keyVaultUrl           = '$($config.KeyVaultUrl)'
 param keyVaultCertificateName = '$($config.CertName)'
 param tenantId              = '$($config.TenantId)'
 param clientId              = '$($config.ClientId)'

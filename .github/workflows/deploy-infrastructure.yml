@@ -14,7 +14,6 @@
 # COSMOS_DATABASE_ID         - brands-advisory
 # COSMOS_CONTAINER_NAME      - cms
 # KEY_VAULT_NAME             - kv-brands-advisory
-# KEY_VAULT_URL              - https://kv-brands-advisory.vault.azure.net/
 # CERT_NAME                  - brands-advisory-cms
 # TENANT_ID                  - Entra ID Tenant ID
 # CLIENT_ID                  - brands-advisory-cms App Registration Client ID
@@ -64,7 +63,6 @@ jobs:
           cosmosDatabaseId=${{ secrets.COSMOS_DATABASE_ID }}
           cosmosContainerName=${{ secrets.COSMOS_CONTAINER_NAME }}
           keyVaultName=${{ secrets.KEY_VAULT_NAME }}
-          keyVaultUrl=${{ secrets.KEY_VAULT_URL }}
           keyVaultCertificateName=${{ secrets.CERT_NAME }}
           tenantId=${{ secrets.TENANT_ID }}
           clientId=${{ secrets.CLIENT_ID }}

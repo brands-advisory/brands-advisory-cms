@@ -13,9 +13,8 @@ Bicep templates for deploying the Brands Advisory CMS to Azure.
 | Cosmos DB Account | NoSQL API, Free Tier, Session consistency |
 | Cosmos DB Database | Configured via `cosmosDatabaseId` parameter |
 | Cosmos DB Container | 400 RU/s, partition key `/type` |
-| Role Assignment | Key Vault Certificate User on the existing Key Vault |
-
-> The **Key Vault** itself is not created by these templates. It must exist before deployment.
+| Azure Key Vault | RBAC authorization enabled, soft-delete on |
+| Role Assignment | Key Vault Certificate User for the Web App Managed Identity |
 
 ---
 
@@ -28,8 +27,6 @@ Bicep templates for deploying the Brands Advisory CMS to Azure.
   ```bash
   az group create --name rg-brands-advisory --location germanywestcentral
   ```
-- An Azure Key Vault already exists with the authentication certificate uploaded
-
 ---
 
 ## Parameters
@@ -43,8 +40,7 @@ Copy `main.bicepparam`, fill in all `__PLACEHOLDER__` values, and keep the copy 
 | `__COSMOS_ACCOUNT_NAME__` | Cosmos DB account name (globally unique) |
 | `__DATABASE_ID__` | Cosmos DB database name (e.g. `brands-advisory`) |
 | `__CONTAINER_NAME__` | Cosmos DB container name (e.g. `content`) |
-| `__KEY_VAULT_NAME__` | Name of the existing Key Vault |
-| `__KEY_VAULT_URL__` | Full URI, e.g. `https://<name>.vault.azure.net/` |
+| `__KEY_VAULT_NAME__` | Key Vault name (must be globally unique, e.g. `kv-brands-advisory`) |
 | `__CERT_NAME__` | Certificate name as stored in Key Vault |
 | `__TENANT_ID__` | Entra ID Directory (tenant) ID |
 | `__CLIENT_ID__` | App Registration Application (client) ID |

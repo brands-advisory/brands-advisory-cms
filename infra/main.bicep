@@ -37,12 +37,6 @@ param cosmosContainerName string
 @description('Name of the existing Key Vault.')
 param keyVaultName string
 
-@description('If true, the existing Key Vault is referenced for the RBAC assignment.')
-param existingKeyVault bool = true
-
-@description('URI of the Azure Key Vault, e.g. https://<vault-name>.vault.azure.net/.')
-param keyVaultUrl string
-
 @description('Name of the certificate stored in Key Vault.')
 param keyVaultCertificateName string
 
@@ -72,6 +66,18 @@ module cosmos 'modules/cosmos.bicep' = {
 }
 
 // ---------------------------------------------------------------------------
+// Module: Key Vault
+// ---------------------------------------------------------------------------
+module keyVault 'modules/keyvault.bicep' = {
+  name: 'keyvault'
+  params: {
+    location: location
+    keyVaultName: keyVaultName
+    tenantId: tenantId
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Module: Storage Account (article images)
 // ---------------------------------------------------------------------------
 module storage 'modules/storage.bicep' = {
@@ -91,7 +97,7 @@ module appService 'modules/app-service.bicep' = {
     location: location
     appName: appName
     planName: planName
-    keyVaultUrl: keyVaultUrl
+    keyVaultUrl: keyVault.outputs.keyVaultUri
     keyVaultCertificateName: keyVaultCertificateName
     cosmosEndpoint: cosmos.outputs.cosmosEndpoint
     cosmosDatabaseId: cosmosDatabaseId
@@ -106,12 +112,13 @@ module appService 'modules/app-service.bicep' = {
 // ---------------------------------------------------------------------------
 // Module: Key Vault RBAC (only when Key Vault exists)
 // ---------------------------------------------------------------------------
-module keyVaultRbac 'modules/keyvault-rbac.bicep' = if (existingKeyVault) {
+module keyVaultRbac 'modules/keyvault-rbac.bicep' = {
   name: 'keyVaultRbac'
   params: {
     keyVaultName: keyVaultName
     principalId: appService.outputs.principalId
   }
+  dependsOn: [keyVault]
 }
 
 // ---------------------------------------------------------------------------

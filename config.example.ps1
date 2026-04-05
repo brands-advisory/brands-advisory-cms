@@ -18,7 +18,6 @@ $config = @{
 
     # Key Vault
     KeyVaultName         = "__KEY_VAULT_NAME__"
-    KeyVaultUrl          = "__KEY_VAULT_URL__"
     CertName             = "__CERT_NAME__"
 
     # Entra ID
