@@ -58,6 +58,14 @@ else
 
     </div>
 
+    <h5 class="fw-bold mb-3">Skill Tags</h5>
+
+    <div class="card-dark p-3 mb-3">
+        <label class="form-label text-secondary small">Comma-separated — e.g. Cloud Adoption (Azure), Solution Architecture</label>
+        <input class="form-control bg-dark text-white border-secondary"
+               @bind="_tagsInput" />
+    </div>
+
     <h5 class="fw-bold mb-3">Profile Links</h5>
 
     <div class="card-dark p-3 mb-3">
@@ -95,6 +103,7 @@ else
 @code {
     private AboutContent? _about;
     private bool _saving;
+    private string _tagsInput = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -106,6 +115,7 @@ else
         }
 
         _about = await AboutRepo.GetOrCreateAsync();
+        _tagsInput = string.Join(", ", _about.Tags);
     }
 
     private void AddLink() => _about!.Links.Add(new ProfileLink());
@@ -115,6 +125,9 @@ else
     private async Task SaveAsync()
     {
         if (_about is null) return;
+        _about.Tags = _tagsInput
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
         _saving = true;
         await AboutRepo.UpsertAsync(_about);
         _saving = false;

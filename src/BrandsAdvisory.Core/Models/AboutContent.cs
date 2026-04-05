@@ -8,4 +8,5 @@ public class AboutContent : CosmosDocument
     public string ProfileUrl { get; set; } = String.Empty;
     public string Location { get; set; } = String.Empty;
     public List<ProfileLink> Links { get; set; } = [];
+    public List<string> Tags { get; set; } = [];
 }

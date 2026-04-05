@@ -31,7 +31,7 @@ else
 
         <!-- Skill tags -->
         <div class="d-flex flex-wrap gap-2 mb-4">
-            @foreach (var tag in _tags)
+            @foreach (var tag in Tags)
             {
                 <span class="tag-pill">@tag</span>
             }
@@ -99,12 +99,17 @@ else
 
     private AboutContent? _about;
 
-    private static readonly string[] _tags =
+    private static readonly string[] _defaultTags =
     [
         "Cloud Adoption (Azure)",
         "Solution Architecture",
         "GenAI & Copilot"
     ];
+
+    private IEnumerable<string> Tags =>
+        _about?.Tags is { Count: > 0 } tags
+            ? tags.SelectMany(t => t.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            : _defaultTags;
 
     protected override async Task OnInitializedAsync()
     {
