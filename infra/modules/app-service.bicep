@@ -73,6 +73,7 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
     httpsOnly: true
     siteConfig: {
       linuxFxVersion: dotnetVersion
+      appCommandLine: 'dotnet BrandsAdvisory.dll'
       // alwaysOn requires at least a Standard plan; disabled for B1
       alwaysOn: false
       appSettings: [

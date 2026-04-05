@@ -162,15 +162,43 @@ This uses [`dotnet user-secrets`](https://learn.microsoft.com/en-us/aspnet/core/
 
 ### GitHub Secrets (for GitHub Actions deployment)
 
+The workflow in `.github/workflows/deploy-app.yml` requires two secrets in the repository (`Settings → Secrets and variables → Actions → New repository secret`):
+
 | Secret name | Value |
 |---|---|
-| `AZURE_WEBAPP_PUBLISH_PROFILE` | Download from Azure App Service → Get publish profile |
-| `AZURE_AD_TENANT_ID` | Entra ID tenant ID |
-| `AZURE_AD_CLIENT_ID` | App registration client ID |
-| `AZURE_AD_CERT_THUMBPRINT` | Thumbprint of the authentication certificate |
-| `COSMOS_ENDPOINT` | Cosmos DB endpoint URI |
-| `COSMOS_KEY` | Cosmos DB primary key |
-| `OWNER_OID` | Your Entra ID object ID |
+| `AZURE_WEBAPP_NAME` | Name of the Azure App Service web app (e.g. `brands-advisory-cms`) |
+| `AZURE_WEBAPP_PUBLISH_PROFILE` | Contents of the publish profile XML — Azure Portal → App Service → **Get publish profile** → copy the full file content |
+
+All application configuration (Entra ID, Cosmos DB, Syncfusion key) is set directly in the App Service configuration via Bicep — no additional GitHub secrets are needed for those values.
+
+### Deploying Infrastructure (Bicep)
+
+Infrastructure is defined in `infra/main.bicep`. Deploy with the Azure CLI:
+
+**1. Create a local parameter file** (gitignored):
+
+```bash
+cp infra/main.bicepparam infra/main.local.bicepparam
+# Edit infra/main.local.bicepparam and replace all __PLACEHOLDER__ values
+```
+
+**2. Deploy to Azure:**
+
+```bash
+az deployment group create \
+  --resource-group <your-resource-group> \
+  --template-file infra/main.bicep \
+  --parameters infra/main.local.bicepparam
+```
+
+This deploys:
+- Azure Cosmos DB account, database, and container
+- Azure App Service Plan + Web App (.NET 10, Linux)
+- All App Service configuration (Entra ID, Cosmos DB endpoint, Syncfusion key)
+- Key Vault RBAC — **Key Vault Certificate User** role for the Web App Managed Identity
+- Cosmos DB RBAC — **Built-in Data Contributor** role for the Web App Managed Identity
+
+> **Note:** The Key Vault itself is not created by the Bicep template. It must already exist and the certificate must be uploaded under the configured name before deploying the application.
 
 ### Legal Page
 

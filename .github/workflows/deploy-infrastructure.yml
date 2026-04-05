@@ -1,0 +1,67 @@
+# Required GitHub Secrets:
+# AZURE_CREDENTIALS          - Service principal JSON
+#                              (sp-brands-advisory-cms-github)
+# AZURE_SUBSCRIPTION_ID      - Azure Subscription ID
+# AZURE_RESOURCE_GROUP       - rg-brands-advisory
+# APP_NAME                   - brands-advisory
+# PLAN_NAME                  - plan-brands-advisory
+# COSMOS_ACCOUNT_NAME        - cosmos-brands-advisory
+# COSMOS_DATABASE_ID         - brands-advisory
+# COSMOS_CONTAINER_NAME      - cms
+# KEY_VAULT_NAME             - kv-brands-advisory
+# KEY_VAULT_URL              - https://kv-brands-advisory.vault.azure.net/
+# CERT_NAME                  - brands-advisory-cms
+# TENANT_ID                  - Entra ID Tenant ID
+# CLIENT_ID                  - brands-advisory-cms App Registration Client ID
+# SYNCFUSION_LICENSE_KEY     - Syncfusion Community License Key
+#
+# Trigger: push to main when files in infra/ change
+# Manual trigger: workflow_dispatch
+
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deploy-infrastructure.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-infra:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy Bicep template
+      uses: azure/arm-deploy@v2
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        template: infra/main.bicep
+        parameters: >
+          appName=${{ secrets.APP_NAME }}
+          planName=${{ secrets.PLAN_NAME }}
+          cosmosAccountName=${{ secrets.COSMOS_ACCOUNT_NAME }}
+          cosmosDatabaseId=${{ secrets.COSMOS_DATABASE_ID }}
+          cosmosContainerName=${{ secrets.COSMOS_CONTAINER_NAME }}
+          keyVaultName=${{ secrets.KEY_VAULT_NAME }}
+          keyVaultUrl=${{ secrets.KEY_VAULT_URL }}
+          keyVaultCertificateName=${{ secrets.CERT_NAME }}
+          tenantId=${{ secrets.TENANT_ID }}
+          clientId=${{ secrets.CLIENT_ID }}
+          syncfusionLicenseKey=${{ secrets.SYNCFUSION_LICENSE_KEY }}
+        failOnStdErr: false
+        deploymentMode: Incremental
+
+    - name: Azure Logout
+      run: az logout
+      if: always()

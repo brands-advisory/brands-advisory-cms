@@ -48,7 +48,7 @@ Copy `main.bicepparam`, fill in all `__PLACEHOLDER__` values, and keep the copy 
 | `__CERT_NAME__` | Certificate name as stored in Key Vault |
 | `__TENANT_ID__` | Entra ID Directory (tenant) ID |
 | `__CLIENT_ID__` | App Registration Application (client) ID |
-| `__OWNER_OID__` | Object ID of your Entra ID user (site owner) |
+| `__SYNCFUSION_LICENSE_KEY__` | Syncfusion Community/Commercial license key (served to WASM client via `/api/config`) |
 
 ---
 
