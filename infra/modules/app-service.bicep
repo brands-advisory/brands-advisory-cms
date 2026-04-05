@@ -38,9 +38,6 @@ param tenantId string
 @description('App Registration client (application) ID.')
 param clientId string
 
-@description('Syncfusion Community License key.')
-param syncfusionLicenseKey string
-
 @description('Primary blob endpoint URI of the Storage Account for article images.')
 param storageBlobEndpoint string
 
@@ -118,15 +115,15 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
           name: 'CosmosDb__ContainerName'
           value: cosmosContainerName
         }
-        // ----- Syncfusion -----
-        {
-          name: 'Syncfusion__LicenseKey'
-          value: syncfusionLicenseKey
-        }
         // ----- Storage -----
         {
           name: 'Storage__BlobEndpoint'
           value: storageBlobEndpoint
+        }
+        // ----- Key Vault URL (for IConfiguration Key Vault source) -----
+        {
+          name: 'KeyVault__Url'
+          value: keyVaultUrl
         }
       ]
     }

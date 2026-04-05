@@ -24,8 +24,5 @@ param keyVaultCertificateName = '__CERT_NAME__'
 param tenantId = '__TENANT_ID__'
 param clientId = '__CLIENT_ID__'
 
-// Syncfusion
-param syncfusionLicenseKey = '__SYNCFUSION_LICENSE_KEY__'
-
 // Storage
 param storageAccountName = '__STORAGE_ACCOUNT_NAME__'

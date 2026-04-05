@@ -46,9 +46,6 @@ param tenantId string
 @description('App Registration client (application) ID.')
 param clientId string
 
-@description('Syncfusion Community License key.')
-param syncfusionLicenseKey string
-
 @description('Globally unique name for the Storage Account (3-24 lowercase alphanumeric).')
 param storageAccountName string
 
@@ -104,7 +101,6 @@ module appService 'modules/app-service.bicep' = {
     cosmosContainerName: cosmosContainerName
     tenantId: tenantId
     clientId: clientId
-    syncfusionLicenseKey: syncfusionLicenseKey
     storageBlobEndpoint: storage.outputs.blobEndpoint
   }
 }

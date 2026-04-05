@@ -29,6 +29,9 @@ $config = @{
     StorageBlobEndpoint  = "__STORAGE_BLOB_ENDPOINT__"
 
     # Syncfusion
+    # Used for: dotnet user-secrets (local)
+    #            Key Vault secret (production)
+    # NOT used for: GitHub Secrets or Bicep parameters
     SyncfusionLicenseKey = "__SYNCFUSION_LICENSE_KEY__"
 
     # GitHub Actions OIDC

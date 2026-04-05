@@ -205,6 +205,22 @@ Azure Portal → <key-vault-name> → Certificates → Generate/Import → Impor
 
 This is the only step that cannot be automated — storing the private key in CI/CD would defeat the purpose of using Key Vault.
 
+### 8a. Set Key Vault Secrets
+
+Assign the **Key Vault Secrets Officer** role to your account using `Set-KeyVaultRoleAssignment.ps1` from cloud-admin-toolkit, then run:
+
+```powershell
+.\setup.ps1 -KeyVault
+```
+
+Secrets stored in Key Vault:
+
+| Secret name | Maps to config key |
+|---|---|
+| `Syncfusion--LicenseKey` | `Syncfusion:LicenseKey` |
+
+> **Note:** Key Vault secret names use `--` as a separator, which Azure App Configuration maps to `:` in .NET configuration.
+
 ### 9. Trigger final deployment
 
 After uploading the certificate, trigger a new deployment:

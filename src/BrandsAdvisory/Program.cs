@@ -1,3 +1,4 @@
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
 using BrandsAdvisory.Components;
 using BrandsAdvisory.Endpoints;
@@ -16,6 +17,26 @@ using Syncfusion.Blazor;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ---------------------------------------------------------------------------
+// Key Vault Configuration (production only)
+// In development, secrets are set via dotnet user-secrets.
+// In production, secrets are stored in Azure Key Vault and loaded here.
+// Secret naming: "Section--Key" in KV maps to "Section:Key" in config.
+// Example: "Syncfusion--LicenseKey" → configuration["Syncfusion:LicenseKey"]
+// Uses System-Assigned Managed Identity in production.
+// Requires: Key Vault Secrets User role on the Key Vault for the Managed Identity.
+// ---------------------------------------------------------------------------
+if (!builder.Environment.IsDevelopment())
+{
+    var keyVaultUrl = builder.Configuration["KeyVault:Url"];
+    if (!string.IsNullOrEmpty(keyVaultUrl))
+    {
+        builder.Configuration.AddAzureKeyVault(
+            new Uri(keyVaultUrl),
+            new DefaultAzureCredential());
+    }
+}
 
 // Register Syncfusion Community License key.
 // Set via user-secrets locally: dotnet user-secrets set "Syncfusion:LicenseKey" "..."

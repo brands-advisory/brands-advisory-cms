@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Sets up local development secrets, GitHub Secrets, and Bicep parameters
+    Sets up local development secrets, GitHub Secrets, Key Vault secrets, and Bicep parameters
     from a single config.ps1 file.
 
 .DESCRIPTION
@@ -8,13 +8,15 @@
       -Secrets  dotnet user-secrets for local development
       -GitHub   GitHub repository secrets via gh CLI
       -Bicep    Generates infra/main.local.bicepparam
-      -All      All three targets
+      -KeyVault Sets Key Vault secrets via Azure CLI
+      -All      All four targets
 
 .EXAMPLE
     .\setup.ps1 -All
-    .\setup.ps1 -Secrets
-    .\setup.ps1 -GitHub
-    .\setup.ps1 -Bicep
+    .\setup.ps1 -KeyVault    # Key Vault secrets only
+    .\setup.ps1 -Secrets     # dotnet user-secrets only
+    .\setup.ps1 -GitHub      # GitHub Secrets only
+    .\setup.ps1 -Bicep       # Generate bicepparam only
 
 .NOTES
     Requires: GitHub CLI (gh) for -GitHub flag.
@@ -24,6 +26,7 @@ param(
     [switch]$Secrets,
     [switch]$GitHub,
     [switch]$Bicep,
+    [switch]$KeyVault,
     [switch]$All
 )
 
@@ -53,6 +56,7 @@ if ($Secrets -or $All) {
     dotnet user-secrets set "CosmosDb:DatabaseId"                                     $config.CosmosDatabaseId     -p $project
     dotnet user-secrets set "CosmosDb:ContainerName"                                  $config.CosmosContainerName  -p $project
     dotnet user-secrets set "Storage:BlobEndpoint"                                    $config.StorageBlobEndpoint  -p $project
+    dotnet user-secrets set "KeyVault:Url"                                            "https://$($config.KeyVaultName).vault.azure.net" -p $project
     dotnet user-secrets set "Syncfusion:LicenseKey"                                   $config.SyncfusionLicenseKey -p $project
 
     Write-Host "dotnet user-secrets set." -ForegroundColor Green
@@ -77,7 +81,6 @@ if ($GitHub -or $All) {
     gh secret set CERT_NAME              --body $config.CertName
     gh secret set CLIENT_ID              --body $config.ClientId
     gh secret set TENANT_ID              --body $config.TenantId
-    gh secret set SYNCFUSION_LICENSE_KEY --body $config.SyncfusionLicenseKey
     gh secret set STORAGE_ACCOUNT_NAME   --body $config.StorageAccountName
 
     Write-Host "GitHub Secrets set." -ForegroundColor Green
@@ -104,7 +107,6 @@ param keyVaultName          = '$($config.KeyVaultName)'
 param keyVaultCertificateName = '$($config.CertName)'
 param tenantId              = '$($config.TenantId)'
 param clientId              = '$($config.ClientId)'
-param syncfusionLicenseKey  = '$($config.SyncfusionLicenseKey)'
 param storageAccountName    = '$($config.StorageAccountName)'
 "@
 
@@ -112,6 +114,31 @@ param storageAccountName    = '$($config.StorageAccountName)'
     Set-Content -Path $outputPath -Value $content -Encoding UTF8
 
     Write-Host "infra/main.local.bicepparam generated." -ForegroundColor Green
+}
+
+# ---------------------------------------------------------------------------
+# 4. Key Vault Secrets via Azure CLI
+# Requires: Key Vault Secrets Officer role on the Key Vault
+# Assign with: Set-KeyVaultRoleAssignment.ps1 from cloud-admin-toolkit
+# ---------------------------------------------------------------------------
+if ($KeyVault -or $All) {
+    Write-Host "Setting Key Vault secrets..." -ForegroundColor Yellow
+    Write-Host "Note: Requires 'Key Vault Secrets Officer' role." `
+        -ForegroundColor Gray
+    Write-Host "      Use Set-KeyVaultRoleAssignment.ps1 from " `
+        -ForegroundColor Gray
+    Write-Host "      cloud-admin-toolkit to assign the role." `
+        -ForegroundColor Gray
+
+    az keyvault secret set `
+        --vault-name $config.KeyVaultName `
+        --name "Syncfusion--LicenseKey" `
+        --value $config.SyncfusionLicenseKey `
+        --output none
+
+    Write-Host "Key Vault secrets set." -ForegroundColor Green
+    Write-Host "  Syncfusion--LicenseKey → Syncfusion:LicenseKey" `
+        -ForegroundColor Gray
 }
 
 Write-Host "Done." -ForegroundColor Green

@@ -41,3 +41,22 @@ resource keyVaultCertificateUserAssignment 'Microsoft.Authorization/roleAssignme
     principalType: principalType
   }
 }
+
+// ---------------------------------------------------------------------------
+// Role Assignment — Key Vault Secrets User
+// Allows the Web App Managed Identity to read secrets.
+// Required for reading secrets via AddAzureKeyVault() in Program.cs at startup.
+// ---------------------------------------------------------------------------
+resource keyVaultSecretsUserAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(keyVault.id, principalId, '4633458b-17de-408a-b874-0445c86b69e6')
+  scope: keyVault
+  properties: {
+    // Key Vault Secrets User (built-in)
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      '4633458b-17de-408a-b874-0445c86b69e6'
+    )
+    principalId: principalId
+    principalType: principalType
+  }
+}
