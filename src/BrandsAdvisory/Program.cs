@@ -206,6 +206,7 @@ app.MapGet("/api/user", (HttpContext context) =>
 app.MapAboutEndpoints();
 app.MapProjectEndpoints();
 app.MapArticleEndpoints();
+app.MapImageEndpoints();
 
 // Client config endpoint (non-sensitive values for WASM startup)
 app.MapConfigEndpoints();

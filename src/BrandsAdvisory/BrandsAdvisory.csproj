@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
     <PackageReference Include="Microsoft.Identity.Web" Version="*" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="*" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="*" />
     <PackageReference Include="Syncfusion.Blazor.Grid" Version="*" />
     <PackageReference Include="Syncfusion.Blazor.RichTextEditor" Version="*" />
     <PackageReference Include="Syncfusion.Blazor.Themes" Version="*" />

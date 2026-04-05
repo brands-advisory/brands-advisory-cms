@@ -55,6 +55,9 @@ param clientId string
 @description('Syncfusion Community License key.')
 param syncfusionLicenseKey string
 
+@description('Globally unique name for the Storage Account (3-24 lowercase alphanumeric).')
+param storageAccountName string
+
 // ---------------------------------------------------------------------------
 // Module: Cosmos DB
 // ---------------------------------------------------------------------------
@@ -65,6 +68,17 @@ module cosmos 'modules/cosmos.bicep' = {
     accountName: cosmosAccountName
     databaseName: cosmosDatabaseId
     containerName: cosmosContainerName
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Module: Storage Account (article images)
+// ---------------------------------------------------------------------------
+module storage 'modules/storage.bicep' = {
+  name: 'storage'
+  params: {
+    location: location
+    storageAccountName: storageAccountName
   }
 }
 
@@ -85,6 +99,7 @@ module appService 'modules/app-service.bicep' = {
     tenantId: tenantId
     clientId: clientId
     syncfusionLicenseKey: syncfusionLicenseKey
+    storageBlobEndpoint: storage.outputs.blobEndpoint
   }
 }
 
@@ -106,6 +121,17 @@ module cosmosRbac 'modules/cosmos-rbac.bicep' = {
   name: 'cosmosRbac'
   params: {
     cosmosAccountName: cosmosAccountName
+    principalId: appService.outputs.principalId
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Module: Storage RBAC (Blob Data Contributor for Managed Identity)
+// ---------------------------------------------------------------------------
+module storageRbac 'modules/storage-rbac.bicep' = {
+  name: 'storageRbac'
+  params: {
+    storageAccountName: storageAccountName
     principalId: appService.outputs.principalId
   }
 }

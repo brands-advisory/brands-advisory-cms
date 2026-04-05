@@ -163,15 +163,36 @@ All sensitive values use the `__PLACEHOLDER__` convention and must never be comm
 
 > **Cosmos DB access uses Managed Identity** (`DefaultAzureCredential`) — no primary key is stored anywhere. Locally, `az login` credentials are used automatically. In production, the App Service System-Assigned Managed Identity receives the **Cosmos DB Built-in Data Contributor** role via the `cosmos-rbac` Bicep module.
 
-**Local development** — copy `set-secrets.sh.example` to `set-secrets.sh`, fill in the values, then run it from the repository root:
+### Configuration (config.ps1 + setup.ps1)
 
-```bash
-cp set-secrets.sh.example set-secrets.sh
-# Edit set-secrets.sh and replace all __PLACEHOLDER__ values
-bash set-secrets.sh
+All environment-specific values live in a single file — `config.ps1` — that is never committed to source control. The `setup.ps1` script reads it and applies values to three targets in one step:
+
+| Target | What it does |
+|---|---|
+| `-Secrets` | Sets `dotnet user-secrets` for local development |
+| `-GitHub` | Sets all GitHub Actions repository secrets via `gh` CLI |
+| `-Bicep` | Generates `infra/main.local.bicepparam` for `az deployment` |
+| `-All` | All three targets at once |
+
+**One-time setup:**
+
+```powershell
+# 1. Copy the example and fill in your values
+Copy-Item config.example.ps1 config.ps1
+# Edit config.ps1 — replace all __PLACEHOLDER__ values
+
+# 2. Apply everything
+.\setup.ps1 -All
 ```
 
-This uses [`dotnet user-secrets`](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets), which stores secrets outside the project directory and never touches source control.
+Afterwards:
+- Local app reads secrets via `dotnet user-secrets`
+- GitHub Actions workflows use the repository secrets
+- `infra/main.local.bicepparam` is ready for `az deployment group create`
+
+Requires: [GitHub CLI](https://cli.github.com/) for `-GitHub` — `winget install GitHub.cli`
+
+> `config.ps1` and `infra/main.local.bicepparam` are both listed in `.gitignore` and will never be committed.
 
 ## CI/CD
 
@@ -219,16 +240,17 @@ Add the following secrets in `Settings → Secrets and variables → Actions →
 | `CLIENT_ID` | brands-advisory-cms App Registration Client ID |
 | `TENANT_ID` | Entra ID Tenant ID |
 | `SYNCFUSION_LICENSE_KEY` | Syncfusion Community License key |
+| `STORAGE_ACCOUNT_NAME` | Azure Storage Account name (e.g. `stbrandsadvisory`) |
 
 ### Deploying Infrastructure (Bicep)
 
-Infrastructure is defined in `infra/main.bicep`. Deploy with the Azure CLI:
+Infrastructure is defined in `infra/main.bicep`.
 
-**1. Create a local parameter file** (gitignored):
+**1. Generate the local parameter file** (if not already done via `setup.ps1 -Bicep`):
 
-```bash
-cp infra/main.bicepparam infra/main.local.bicepparam
-# Edit infra/main.local.bicepparam and replace all __PLACEHOLDER__ values
+```powershell
+.\setup.ps1 -Bicep
+# Generates infra/main.local.bicepparam from config.ps1
 ```
 
 **2. Deploy to Azure:**
@@ -287,10 +309,10 @@ az login
 
 **4. Set local secrets** (once, see [Setup](#setup) above):
 
-```bash
-cp set-secrets.sh.example set-secrets.sh
-# Edit set-secrets.sh and replace all __PLACEHOLDER__ values
-bash set-secrets.sh
+```powershell
+Copy-Item config.example.ps1 config.ps1
+# Edit config.ps1 and replace all __PLACEHOLDER__ values
+.\setup.ps1 -Secrets
 ```
 
 ### Running the app

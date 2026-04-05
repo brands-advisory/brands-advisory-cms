@@ -57,6 +57,7 @@ nunit-*.xml
 appsettings.Development.json
 set-secrets.sh
 set-secrets.ps1
+config.ps1
 
 # Bicep compiled output
 infra/main.json

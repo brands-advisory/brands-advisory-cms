@@ -76,6 +76,8 @@ else
             <SfRichTextEditor @bind-Value="_article.Content"
                               Height="500px">
                 <RichTextEditorToolbarSettings Items="@_toolbarItems" />
+                <RichTextEditorImageSettings SaveUrl="/api/images/upload"
+                                             Path="/api/images/upload" />
             </SfRichTextEditor>
         </div>
 
