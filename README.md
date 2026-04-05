@@ -165,19 +165,39 @@ bash set-secrets.sh
 
 This uses [`dotnet user-secrets`](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets), which stores secrets outside the project directory and never touches source control.
 
-## GitHub Actions (CI/CD)
+## CI/CD
 
-Authentication uses OIDC Federated Credentials — no client secrets needed.
+Two GitHub Actions workflows handle automated deployment:
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| `deploy-app.yml` | Push to `main` when `src/**` changes | Builds and deploys the Blazor app to Azure Web App |
+| `deploy-infrastructure.yml` | Push to `main` when `infra/**` changes | Deploys Bicep templates to Azure |
+
+Both workflows use **OIDC Federated Credentials** for authentication — no client secrets are stored in GitHub.
+
+### Authentication Setup (OIDC)
+
+1. Create a Service Principal with **Contributor** role on the resource group
+2. Add **User Access Administrator** role on the Key Vault (required for Bicep to set Key Vault role assignments)
+3. Add a Federated Credential to the Service Principal:
+   - **Issuer:** `https://token.actions.githubusercontent.com`
+   - **Subject:** `repo:{org}/{repo}:ref:refs/heads/main`
+   - **Audiences:** `api://AzureADTokenExchange`
+
+See: https://aka.ms/azureactions-oidc
+
+### Required GitHub Secrets
 
 Add the following secrets in `Settings → Secrets and variables → Actions → New repository secret`:
 
-| Secret | Value |
+| Secret | Description |
 |---|---|
 | `AZURE_CLIENT_ID` | App ID of the deployment service principal |
 | `AZURE_TENANT_ID` | Entra ID Tenant ID |
 | `AZURE_SUBSCRIPTION_ID` | Azure Subscription ID |
-| `AZURE_RESOURCE_GROUP` | e.g. `rg-brands-advisory` |
-| `AZURE_WEBAPP_NAME` | e.g. `brands-advisory` |
+| `AZURE_RESOURCE_GROUP` | Resource group name (e.g. `rg-brands-advisory`) |
+| `AZURE_WEBAPP_NAME` | Azure Web App name (e.g. `brands-advisory`) |
 | `APP_NAME` | Azure Web App name |
 | `PLAN_NAME` | App Service Plan name |
 | `COSMOS_ACCOUNT_NAME` | Cosmos DB account name |
@@ -189,19 +209,6 @@ Add the following secrets in `Settings → Secrets and variables → Actions →
 | `CLIENT_ID` | brands-advisory-cms App Registration Client ID |
 | `TENANT_ID` | Entra ID Tenant ID |
 | `SYNCFUSION_LICENSE_KEY` | Syncfusion Community License key |
-
-Setup: Create a service principal and add a Federated Credential for GitHub Actions OIDC.  
-See: https://aka.ms/azureactions-oidc
-
-### Service Principal for GitHub Actions
-
-The deployment uses OIDC Federated Credentials. Create a service principal with **Contributor** role on the resource group, and add a Federated Credential:
-
-- **Issuer:** `https://token.actions.githubusercontent.com`
-- **Subject:** `repo:{org}/{repo}:ref:refs/heads/main`
-- **Audiences:** `api://AzureADTokenExchange`
-
-Also assign **User Access Administrator** on the Key Vault to allow the Bicep template to set role assignments.
 
 ### Deploying Infrastructure (Bicep)
 
