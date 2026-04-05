@@ -1,9 +1,17 @@
-# brands-advisory-cms
+# Blazor Portfolio CMS
+### A production-ready blueprint for the modern Microsoft stack
 
-Blazor Web App blueprint for a freelancer portfolio site.  
-Built with **.NET 10**, **Azure Web App**, **Cosmos DB**, **Entra ID** authentication, and **Syncfusion** components.
+This project demonstrates how to build and deploy a production-ready .NET web application end-to-end on the Microsoft stack:
 
-The site is publicly readable (Static SSR for SEO) and supports owner-only editing via Microsoft Entra ID — no separate admin user store required.
+- **GitHub Copilot** — AI-assisted development throughout
+- **Blazor Web App** — Static SSR for SEO-optimized public pages, InteractiveWebAssembly for the admin interface
+- **Azure-native** — Cosmos DB, Key Vault, Managed Identity, zero secrets stored anywhere
+- **Infrastructure as Code** — Bicep templates for all Azure resources
+- **CI/CD with GitHub Actions** — automated deployment for both app and infrastructure using OIDC Federated Credentials (no client secrets)
+
+The application itself is a freelancer portfolio site — publicly readable with owner-only content editing via Microsoft Entra ID. No separate admin user database required.
+
+> This repository is intentionally kept as a clean, well-documented blueprint. Fork it and adapt it to your own use case.
 
 ---
 
