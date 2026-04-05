@@ -52,6 +52,11 @@ else
             </div>
         }
 
+        @if (!string.IsNullOrEmpty(_article.Summary))
+        {
+            <p class="lead text-secondary mb-4">@_article.Summary</p>
+        }
+
         <div class="article-content text-secondary">
             @((MarkupString)_article.Content)
         </div>

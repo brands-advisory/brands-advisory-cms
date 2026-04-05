@@ -9,6 +9,17 @@ body {
   color: #e6edf3;
 }
 
+/* Override Bootstrap navbar-brand font-size for custom brand layout */
+.navbar-brand .brand-name {
+    font-size: 1.1rem !important;
+    line-height: 1.2;
+}
+
+.navbar-brand .brand-subtitle {
+    font-size: 0.82rem !important;
+    line-height: 1.2;
+}
+
 .card-dark {
   background-color: var(--ba-card-bg);
   border: 1px solid var(--ba-border);

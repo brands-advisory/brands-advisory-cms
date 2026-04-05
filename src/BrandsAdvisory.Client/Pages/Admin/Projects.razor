@@ -6,19 +6,14 @@
 @inject IProjectRepository ProjectRepo
 @inject NavigationManager Nav
 
-<PageTitle>Edit Projects · Brands Advisory</PageTitle>
+<PageTitle>Manage Projects · Brands Advisory</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="fw-bold mb-0">Edit Projects</h2>
-    <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm" @onclick="Cancel">Cancel</button>
-        <button class="btn btn-outline-light btn-sm" @onclick="SaveAllAsync" disabled="@_saving">
-            @(_saving ? "Saving…" : "Save")
-        </button>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Projects</h2>
+    <a href="/admin/projects/new" class="btn btn-outline-light btn-sm">+ New Project</a>
 </div>
 
-@if (_rows is null)
+@if (_projects is null)
 {
     <div class="d-flex justify-content-center py-5">
         <div class="spinner-border text-secondary" role="status">
@@ -26,51 +21,30 @@
         </div>
     </div>
 }
+else if (_projects.Count == 0)
+{
+    <p class="text-secondary text-center py-5">
+        No projects yet. <a href="/admin/projects/new" class="text-primary">Add the first one</a>.
+    </p>
+}
 else
 {
-    <SfGrid DataSource="@_rows"
-            AllowPaging="false"
-            Toolbar="@_toolbar">
-        <GridEditSettings AllowAdding="true"
-                          AllowEditing="true"
-                          AllowDeleting="true"
-                          Mode="EditMode.Normal" />
-        <GridEvents TValue="ProjectRow"
-                    OnActionBegin="OnActionBegin"
-                    OnActionComplete="OnActionComplete" />
-        <GridColumns>
-            <GridColumn Field="@nameof(ProjectRow.Id)"
-                        IsPrimaryKey="true"
-                        Visible="false"
-                        AllowEditing="false" />
-            <GridColumn Field="@nameof(ProjectRow.Title)"
-                        HeaderText="Title"
-                        Width="150" />
-            <GridColumn Field="@nameof(ProjectRow.Customer)"
-                        HeaderText="Customer"
-                        Width="130" />
-            <GridColumn Field="@nameof(ProjectRow.Period)"
-                        HeaderText="Period"
-                        Width="110" />
-            <GridColumn Field="@nameof(ProjectRow.Description)"
-                        HeaderText="Description"
-                        Width="200" />
-            <GridColumn Field="@nameof(ProjectRow.Tags)"
-                        HeaderText="Tags (comma-separated)"
-                        Width="180" />
-            <GridColumn Field="@nameof(ProjectRow.SortOrder)"
-                        HeaderText="Sort"
-                        Width="80" />
-        </GridColumns>
-    </SfGrid>
+    <div class="d-flex flex-column gap-2">
+        @foreach (var project in _projects.OrderBy(p => p.SortOrder))
+        {
+            <div class="card-dark p-3 d-flex justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="fw-semibold text-white">@project.Title</div>
+                    <div class="text-secondary small">@project.Customer · @project.Period</div>
+                </div>
+                <a href="/admin/projects/@project.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+            </div>
+        }
+    </div>
 }
 
 @code {
-    private List<ProjectRow>? _rows;
-    private readonly HashSet<string> _modified = [];
-    private readonly List<string> _deleted = [];
-    private bool _saving;
-    private readonly List<string> _toolbar = ["Add", "Delete"];
+    private List<Project>? _projects;
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,77 +55,6 @@ else
             return;
         }
 
-        var projects = await ProjectRepo.GetAllAsync();
-        _rows = projects.Select(ProjectRow.FromProject).ToList();
-    }
-
-    private void OnActionBegin(ActionEventArgs<ProjectRow> args)
-    {
-        if (args.Data is null) return;
-        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
-            args.Data.Id = Guid.NewGuid().ToString();
-    }
-
-    private void OnActionComplete(ActionEventArgs<ProjectRow> args)
-    {
-        if (args.Data is null) return;
-        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
-        {
-            _modified.Add(args.Data.Id);
-        }
-        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
-        {
-            if (!string.IsNullOrEmpty(args.Data.Id))
-                _deleted.Add(args.Data.Id);
-            _modified.Remove(args.Data.Id);
-        }
-    }
-
-    private async Task SaveAllAsync()
-    {
-        _saving = true;
-
-        foreach (var row in _rows!.Where(r => _modified.Contains(r.Id)))
-            await ProjectRepo.UpsertAsync(row.ToProject());
-
-        foreach (var id in _deleted.Where(id => !string.IsNullOrEmpty(id)))
-            await ProjectRepo.DeleteAsync(id);
-
-        Nav.NavigateTo("/projects");
-    }
-
-    private void Cancel() => Nav.NavigateTo("/projects");
-
-    private sealed class ProjectRow
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string Customer { get; set; } = string.Empty;
-        public string Period { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string Tags { get; set; } = string.Empty;
-        public int SortOrder { get; set; }
-
-        public static ProjectRow FromProject(Project p) => new()
-        {
-            Id = p.Id,
-            Title = p.Title,
-            Customer = p.Customer,
-            Period = p.Period,
-            Description = p.Description,
-            Tags = string.Join(", ", p.Tags),
-            SortOrder = p.SortOrder
-        };
-
-        public Project ToProject() => new()
-        {
-            Id = string.IsNullOrEmpty(Id) ? Guid.NewGuid().ToString() : Id,
-            Title = Title,
-            Customer = Customer,
-            Period = Period,
-            Description = Description,
-            Tags = Tags.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)).ToList(),
-            SortOrder = SortOrder
-        };
+        _projects = await ProjectRepo.GetAllAsync();
     }
 }

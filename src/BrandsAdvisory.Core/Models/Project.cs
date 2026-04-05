@@ -8,5 +8,6 @@ public class Project : CosmosDocument
     public string Period { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public List<string> Tags { get; set; } = [];
+    public List<string> Outcomes { get; set; } = [];
     public int SortOrder { get; set; }
 }
