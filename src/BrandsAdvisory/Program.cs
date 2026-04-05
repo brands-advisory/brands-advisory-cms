@@ -207,6 +207,9 @@ app.MapAboutEndpoints();
 app.MapProjectEndpoints();
 app.MapArticleEndpoints();
 
+// Client config endpoint (non-sensitive values for WASM startup)
+app.MapConfigEndpoints();
+
 // Login: redirect to Microsoft login
 app.MapGet("/login", (string? returnUrl) =>
 {

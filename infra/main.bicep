@@ -52,6 +52,9 @@ param tenantId string
 @description('App Registration client (application) ID.')
 param clientId string
 
+@description('Syncfusion Community License key.')
+param syncfusionLicenseKey string
+
 // ---------------------------------------------------------------------------
 // Module: Cosmos DB
 // ---------------------------------------------------------------------------
@@ -81,6 +84,7 @@ module appService 'modules/app-service.bicep' = {
     cosmosContainerName: cosmosContainerName
     tenantId: tenantId
     clientId: clientId
+    syncfusionLicenseKey: syncfusionLicenseKey
   }
 }
 

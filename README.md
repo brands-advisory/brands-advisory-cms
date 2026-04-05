@@ -142,7 +142,9 @@ All sensitive values use the `__PLACEHOLDER__` convention and must never be comm
 | `__COSMOS_ENDPOINT__` | Cosmos DB account → Overview → URI | `CosmosDb:EndpointUri` |
 | `__DATABASE_ID__` | The Cosmos DB database name (e.g. `brands-advisory`) | `CosmosDb:DatabaseId` |
 | `__CONTAINER_NAME__` | The Cosmos DB container name (e.g. `content`) | `CosmosDb:ContainerName` |
-| `__SYNCFUSION_LICENSE_KEY__` | [Syncfusion License & Downloads](https://www.syncfusion.com/account/downloads) → Community license key | `Syncfusion:LicenseKey` |
+| `__SYNCFUSION_LICENSE_KEY__` | [Syncfusion License & Downloads](https://www.syncfusion.com/account/downloads) → Community license key (free) | `Syncfusion:LicenseKey` |
+
+> **Note:** The Syncfusion license key is stored only in server-side configuration and never exposed in client files. At startup, the Blazor WebAssembly app fetches it from the server via `/api/config`. The `BrandsAdvisory.Client/wwwroot/appsettings.json` contains no secrets.
 
 > **Note:** The app uses certificate-based authentication via **Azure Key Vault** (`SourceType: KeyVault`). `Microsoft.Identity.Web` loads the certificate automatically at startup using the configured Managed Identity (production) or Azure CLI credentials (local development via `az login`). Assign the **Key Vault Certificate User** role to the App Service Managed Identity and to your developer account in the Key Vault access policies.
 

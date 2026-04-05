@@ -33,3 +33,13 @@ body {
 .blazor-error-boundary::after {
     content: "An error has occurred.";
 }
+
+/* Remove focus outline on headings focused programmatically by Blazor navigation.
+   Blazor sets tabindex="-1" on the first heading after page load to manage scroll/focus.
+   This suppresses the resulting outline without affecting keyboard navigation. */
+h1[tabindex="-1"]:focus,
+h2[tabindex="-1"]:focus,
+h3[tabindex="-1"]:focus {
+    outline: none;
+    box-shadow: none;
+}

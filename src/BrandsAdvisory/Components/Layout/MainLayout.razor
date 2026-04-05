@@ -4,14 +4,15 @@
 
 <CascadingValue Value="@_isOwner" Name="IsOwner">
 
-    <nav class="navbar navbar-dark bg-dark sticky-top border-bottom border-secondary">
+    <nav class="navbar navbar-dark sticky-top" style="background-color: #0d1117;">
         <div class="container" style="max-width: 900px;">
 
-            <!-- Brand: avatar + two-line title (always visible) -->
+            <!-- Left: Avatar + Brand -->
             <a class="navbar-brand d-flex align-items-center gap-2 text-decoration-none" href="/">
                 <img src="/images/avatar.jpg"
                      class="rounded-circle"
                      width="40" height="40"
+                     style="object-fit: cover;"
                      alt="Brands Advisory avatar" />
                 <div class="lh-sm">
                     <div class="fw-bold text-white" style="font-size: 0.875rem;">Brands Advisory</div>
@@ -19,57 +20,39 @@
                 </div>
             </a>
 
-            <!-- Hamburger toggler (visible on mobile) -->
-            <button class="navbar-toggler border-secondary"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mainNav"
-                    aria-controls="mainNav"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <!-- Center: Navigation tabs -->
+            <div class="d-flex gap-1">
+                <NavLink href="/"
+                         Match="NavLinkMatch.All"
+                         class="nav-pill-inactive"
+                         ActiveClass="nav-pill-active">
+                    About
+                </NavLink>
+                <NavLink href="/projects"
+                         class="nav-pill-inactive"
+                         ActiveClass="nav-pill-active">
+                    Projects
+                </NavLink>
+                <NavLink href="/articles"
+                         class="nav-pill-inactive"
+                         ActiveClass="nav-pill-active">
+                    Articles
+                </NavLink>
+            </div>
 
-            <!-- Collapsible nav -->
-            <div class="collapse navbar-collapse" id="mainNav">
-                <ul class="navbar-nav mx-auto flex-row flex-wrap gap-2 my-2 my-md-0">
-                    <li class="nav-item">
-                        <NavLink href="/"
-                                 Match="NavLinkMatch.All"
-                                 class="text-secondary text-decoration-none px-3 py-1 rounded-pill"
-                                 ActiveClass="btn btn-dark border border-secondary">
-                            About
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink href="/projects"
-                                 class="text-secondary text-decoration-none px-3 py-1 rounded-pill"
-                                 ActiveClass="btn btn-dark border border-secondary">
-                            Projects
-                        </NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink href="/articles"
-                                 class="text-secondary text-decoration-none px-3 py-1 rounded-pill"
-                                 ActiveClass="btn btn-dark border border-secondary">
-                            Articles
-                        </NavLink>
-                    </li>
-                </ul>
-
-                <div class="d-flex my-2 my-md-0">
-                    <AuthorizeView>
-                        <Authorized>
-                            <form method="post" action="/logout">
-                                <AntiforgeryToken />
-                                <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
-                            </form>
-                        </Authorized>
-                        <NotAuthorized>
-                            <a href="/login" class="btn btn-outline-secondary btn-sm">Login</a>
-                        </NotAuthorized>
-                    </AuthorizeView>
-                </div>
+            <!-- Right: Login/Logout -->
+            <div class="d-flex align-items-center">
+                <AuthorizeView>
+                    <Authorized>
+                        <form method="post" action="/logout">
+                            <AntiforgeryToken />
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">Logout</button>
+                        </form>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="/login" class="btn btn-outline-secondary btn-sm">Login</a>
+                    </NotAuthorized>
+                </AuthorizeView>
             </div>
 
         </div>
@@ -79,9 +62,16 @@
         @Body
     </main>
 
-    <footer class="text-center text-secondary py-3 small border-top border-secondary">
-        &copy; 2026 Brands Advisory &middot;
-        <a href="/legal" class="text-secondary">Legal</a>
+    <footer class="border-top border-secondary py-3 small" style="background-color: #0d1117;">
+        <div class="container d-flex justify-content-between align-items-center" style="max-width: 900px;">
+            <span class="text-secondary">&copy; 2026 Brands Advisory</span>
+            <span></span>
+            <span class="text-secondary d-flex align-items-center gap-3">
+                <a href="https://robert-brands.com" class="text-secondary text-decoration-none">robert-brands.com</a>
+                <span aria-hidden="true">&middot;</span>
+                <a href="/legal" class="text-secondary text-decoration-none">Legal</a>
+            </span>
+        </div>
     </footer>
 
 </CascadingValue>

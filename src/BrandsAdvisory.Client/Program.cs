@@ -1,17 +1,24 @@
+using BrandsAdvisory.Client.Models;
 using BrandsAdvisory.Client.Services;
 using BrandsAdvisory.Core.Interfaces;
 using BrandsAdvisory.Core.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Syncfusion.Blazor;
+using System.Net.Http.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-// Register Syncfusion Community License key.
-// Set value in wwwroot/appsettings.json: { "Syncfusion": { "LicenseKey": "..." } }
-var syncfusionKey = builder.Configuration["Syncfusion:LicenseKey"];
-if (!string.IsNullOrEmpty(syncfusionKey) && !syncfusionKey.StartsWith("__"))
-    Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncfusionKey);
+// Fetch non-sensitive configuration from the server before initializing services.
+// This keeps secrets out of wwwroot/appsettings.json (which is publicly accessible).
+var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
+var clientConfig = await http.GetFromJsonAsync<ClientConfig>("/api/config");
+
+if (!string.IsNullOrEmpty(clientConfig?.SyncfusionLicenseKey) &&
+    !clientConfig.SyncfusionLicenseKey.StartsWith("__"))
+{
+    Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(clientConfig.SyncfusionLicenseKey);
+}
 
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddAuthorizationCore();

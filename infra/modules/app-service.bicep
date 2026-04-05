@@ -38,6 +38,9 @@ param tenantId string
 @description('App Registration client (application) ID.')
 param clientId string
 
+@description('Syncfusion Community License key.')
+param syncfusionLicenseKey string
+
 // ---------------------------------------------------------------------------
 // App Service Plan
 // ---------------------------------------------------------------------------
@@ -110,6 +113,11 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'CosmosDb__ContainerName'
           value: cosmosContainerName
+        }
+        // ----- Syncfusion -----
+        {
+          name: 'Syncfusion__LicenseKey'
+          value: syncfusionLicenseKey
         }
       ]
     }

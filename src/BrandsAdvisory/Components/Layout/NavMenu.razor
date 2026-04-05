@@ -1,19 +1,58 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">BrandsAdvisory</a>
-    </div>
-</div>
+﻿<nav class="navbar navbar-dark" style="background-color: #0d1117;">
+    <div class="container" style="max-width: 900px;">
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+        <!-- Left: Avatar + Brand -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <img src="/images/avatar.jpg"
+                 class="rounded-circle"
+                 width="40" height="40"
+                 alt="Brands Advisory" />
+            <div>
+                <div class="fw-bold text-white" style="font-size: 0.95rem;">Brands Advisory</div>
+                <div class="text-secondary" style="font-size: 0.75rem;">Freelance IT Consulting</div>
+            </div>
+        </a>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+        <!-- Center: Navigation tabs -->
+        <div class="d-flex gap-1">
+            <NavLink href="/" Match="NavLinkMatch.All"
+                     class="btn btn-sm rounded-pill px-3"
+                     ActiveClass="btn-secondary"
+                     InactiveClass="btn-outline-secondary border-0 text-secondary">
+                About
+            </NavLink>
+            <NavLink href="/projects"
+                     class="btn btn-sm rounded-pill px-3"
+                     ActiveClass="btn-secondary"
+                     InactiveClass="btn-outline-secondary border-0 text-secondary">
+                Projects
+            </NavLink>
+            <NavLink href="/articles"
+                     class="btn btn-sm rounded-pill px-3"
+                     ActiveClass="btn-secondary"
+                     InactiveClass="btn-outline-secondary border-0 text-secondary">
+                Articles
             </NavLink>
         </div>
 
-    </nav>
-</div>
+        <!-- Right: Login/Logout -->
+        <div class="d-flex align-items-center">
+            <AuthorizeView>
+                <Authorized>
+                    <a href="/logout"
+                       class="btn btn-outline-secondary btn-sm">
+                        Logout
+                    </a>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="/login"
+                       class="btn btn-outline-secondary btn-sm">
+                        Login
+                    </a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+
+    </div>
+</nav>
 

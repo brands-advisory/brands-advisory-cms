@@ -24,3 +24,6 @@ param keyVaultCertificateName = '__CERT_NAME__'
 // Entra ID / App Registration
 param tenantId = '__TENANT_ID__'
 param clientId = '__CLIENT_ID__'
+
+// Syncfusion
+param syncfusionLicenseKey = '__SYNCFUSION_LICENSE_KEY__'
