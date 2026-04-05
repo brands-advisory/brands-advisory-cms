@@ -254,15 +254,17 @@ Scripts for creating the service principal and configuring the federated credent
 
 ### Required GitHub Secrets
 
-Add the following secrets in `Settings → Secrets and variables → Actions → New repository secret`:
+All secrets are set automatically by `setup.ps1 -GitHub` (see [Initial Setup](#initial-setup-once-per-project), step 6). No manual configuration in the GitHub UI is needed.
+
+The following secrets are set:
 
 | Secret | Description |
 |---|---|
 | `AZURE_CLIENT_ID` | App ID of the deployment service principal |
 | `AZURE_TENANT_ID` | Entra ID Tenant ID |
 | `AZURE_SUBSCRIPTION_ID` | Azure Subscription ID |
-| `AZURE_RESOURCE_GROUP` | Resource group name (e.g. `rg-brands-advisory`) |
-| `AZURE_WEBAPP_NAME` | Azure Web App name (e.g. `brands-advisory`) |
+| `AZURE_RESOURCE_GROUP` | Resource group name |
+| `AZURE_WEBAPP_NAME` | Azure Web App name |
 | `APP_NAME` | Azure Web App name |
 | `PLAN_NAME` | App Service Plan name |
 | `COSMOS_ACCOUNT_NAME` | Cosmos DB account name |
@@ -270,10 +272,10 @@ Add the following secrets in `Settings → Secrets and variables → Actions →
 | `COSMOS_CONTAINER_NAME` | Container name |
 | `KEY_VAULT_NAME` | Key Vault name |
 | `CERT_NAME` | Certificate name in Key Vault |
-| `CLIENT_ID` | brands-advisory-cms App Registration Client ID |
+| `CLIENT_ID` | App Registration Client ID |
 | `TENANT_ID` | Entra ID Tenant ID |
 | `SYNCFUSION_LICENSE_KEY` | Syncfusion Community License key |
-| `STORAGE_ACCOUNT_NAME` | Azure Storage Account name (e.g. `stbrandsadvisory`) |
+| `STORAGE_ACCOUNT_NAME` | Azure Storage Account name |
 
 ### Deploying Infrastructure (Bicep)
 
