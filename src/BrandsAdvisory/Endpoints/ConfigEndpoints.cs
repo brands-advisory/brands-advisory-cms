@@ -11,9 +11,13 @@ public static class ConfigEndpoints
     {
         app.MapGet("/api/config", (IConfiguration config) =>
         {
+            var blobEndpoint = config["Storage:BlobEndpoint"] ?? string.Empty;
+            var imageContainerUrl = blobEndpoint.TrimEnd('/') + "/article-images/";
+
             return Results.Ok(new ClientConfig
             {
-                SyncfusionLicenseKey = config["Syncfusion:LicenseKey"] ?? string.Empty
+                SyncfusionLicenseKey = config["Syncfusion:LicenseKey"] ?? string.Empty,
+                ImageContainerUrl = imageContainerUrl
             });
         })
         .AllowAnonymous()
@@ -24,4 +28,5 @@ public static class ConfigEndpoints
 public record ClientConfig
 {
     public string SyncfusionLicenseKey { get; init; } = string.Empty;
+    public string ImageContainerUrl { get; init; } = string.Empty;
 }

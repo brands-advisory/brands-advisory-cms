@@ -115,10 +115,9 @@ module appService 'modules/app-service.bicep' = {
 module keyVaultRbac 'modules/keyvault-rbac.bicep' = {
   name: 'keyVaultRbac'
   params: {
-    keyVaultName: keyVaultName
+    keyVaultName: keyVault.outputs.keyVaultName
     principalId: appService.outputs.principalId
   }
-  dependsOn: [keyVault]
 }
 
 // ---------------------------------------------------------------------------

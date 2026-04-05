@@ -6,4 +6,5 @@ namespace BrandsAdvisory.Client.Models;
 public record ClientConfig
 {
     public string SyncfusionLicenseKey { get; init; } = string.Empty;
+    public string ImageContainerUrl { get; init; } = string.Empty;
 }

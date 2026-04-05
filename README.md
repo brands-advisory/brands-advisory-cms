@@ -117,82 +117,117 @@ Public pages use Static SSR and depend only on `Core` interfaces, served from Co
 
 ---
 
-## Setup
+## Initial Setup (once per project)
 
-### Required Azure Resources
+Before GitHub Actions can deploy infrastructure and code, a one-time manual setup is required to bootstrap the deployment identity and permissions.
 
-1. **Azure Cosmos DB account** — NoSQL API, database `brands-advisory`, container `content` with partition key `/type`
-2. **Azure App Service** — .NET 10, Linux or Windows
-3. **Microsoft Entra ID App Registration** — for authentication
+### 1. Create Resource Group
+```bash
+az group create \
+  --name <resource-group-name> \
+  --location <location>
+```
 
-### App Registration (Microsoft Entra ID)
+### 2. Create Deployment Service Principal
 
-1. Go to [portal.azure.com](https://portal.azure.com) → **Microsoft Entra ID** → **App registrations** → **New registration**
-2. Name: `brands-advisory-cms`
-3. Supported account types: **Single tenant**
-4. Redirect URI: `https://<your-app>.azurewebsites.net/signin-oidc`
-5. After creation:
-   - **Overview** → copy **Application (client) ID** → `__CLIENT_ID__`
-   - **Overview** → copy **Directory (tenant) ID** → `__TENANT_ID__`
-   - **Certificates & secrets** → **Certificates** → upload the certificate public key (`.cer`)
-   - Upload the full certificate (`.pfx` or `.pem`) to **Key Vault** → Certificates
-   - Assign the **Key Vault Certificate User** role to the App Service Managed Identity in Key Vault
-
-The site owner is identified by the **`SiteAdmin` App Role** in Entra ID — no OID configuration needed.
-
-To grant access: **Entra ID → Enterprise Applications → your app → Users and groups → Add → assign role `SiteAdmin`**
-
-### Configuration Placeholders
-
-All sensitive values use the `__PLACEHOLDER__` convention and must never be committed to source control. Set them via [`dotnet user-secrets`](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) locally (see [Local Development](#local-development)) and in **Azure App Service → Configuration** for production.
-
-| Placeholder | Where to find it | Config key |
-|---|---|---|
-| `__TENANT_ID__` | Entra ID → App registration → Overview | `AzureAd:TenantId` |
-| `__CLIENT_ID__` | Entra ID → App registration → Overview | `AzureAd:ClientId` |
-| `__KEYVAULT_URI__` | Key Vault → Overview → Vault URI | `AzureAd:ClientCertificates:0:KeyVaultUrl` |
-| `__KEYVAULT_CERT_NAME__` | Key Vault → Certificates → certificate name | `AzureAd:ClientCertificates:0:KeyVaultCertificateName` |
-| `__COSMOS_ENDPOINT__` | Cosmos DB account → Overview → URI | `CosmosDb:EndpointUri` |
-| `__DATABASE_ID__` | The Cosmos DB database name (e.g. `brands-advisory`) | `CosmosDb:DatabaseId` |
-| `__CONTAINER_NAME__` | The Cosmos DB container name (e.g. `content`) | `CosmosDb:ContainerName` |
-| `__SYNCFUSION_LICENSE_KEY__` | [Syncfusion License & Downloads](https://www.syncfusion.com/account/downloads) → Community license key (free) | `Syncfusion:LicenseKey` |
-
-> **Note:** The Syncfusion license key is stored only in server-side configuration and never exposed in client files. At startup, the Blazor WebAssembly app fetches it from the server via `/api/config`. The `BrandsAdvisory.Client/wwwroot/appsettings.json` contains no secrets.
-
-> **Note:** The app uses certificate-based authentication via **Azure Key Vault** (`SourceType: KeyVault`). `Microsoft.Identity.Web` loads the certificate automatically at startup using the configured Managed Identity (production) or Azure CLI credentials (local development via `az login`). Assign the **Key Vault Certificate User** role to the App Service Managed Identity and to your developer account in the Key Vault access policies.
-
-> **Cosmos DB access uses Managed Identity** (`DefaultAzureCredential`) — no primary key is stored anywhere. Locally, `az login` credentials are used automatically. In production, the App Service System-Assigned Managed Identity receives the **Cosmos DB Built-in Data Contributor** role via the `cosmos-rbac` Bicep module.
-
-### Configuration (config.ps1 + setup.ps1)
-
-All environment-specific values live in a single file — `config.ps1` — that is never committed to source control. The `setup.ps1` script reads it and applies values to three targets in one step:
-
-| Target | What it does |
-|---|---|
-| `-Secrets` | Sets `dotnet user-secrets` for local development |
-| `-GitHub` | Sets all GitHub Actions repository secrets via `gh` CLI |
-| `-Bicep` | Generates `infra/main.local.bicepparam` for `az deployment` |
-| `-All` | All three targets at once |
-
-**One-time setup:**
-
+Use `Create-ServicePrincipalForDeployment.ps1` from [cloud-admin-toolkit](https://github.com/brands-advisory/cloud-admin-toolkit):
 ```powershell
-# 1. Copy the example and fill in your values
-Copy-Item config.example.ps1 config.ps1
-# Edit config.ps1 — replace all __PLACEHOLDER__ values
+.\Create-ServicePrincipalForDeployment.ps1 -ConfigName <project-name>
+```
 
-# 2. Apply everything
+### 3. Assign Roles on Resource Group
+
+Two roles are required on the resource group:
+```bash
+# Contributor — create and manage all resources
+az role assignment create \
+  --assignee <service-principal-app-id> \
+  --role "Contributor" \
+  --scope "/subscriptions/<subscription-id>/resourceGroups/<resource-group>"
+
+# User Access Administrator — required for Bicep to set RBAC role assignments
+# on Cosmos DB, Key Vault, Storage. Must be on RG level — resources don't
+# exist yet when the service principal is created (chicken-and-egg problem).
+az role assignment create \
+  --assignee <service-principal-app-id> \
+  --role "User Access Administrator" \
+  --scope "/subscriptions/<subscription-id>/resourceGroups/<resource-group>"
+```
+
+### 4. Add OIDC Federated Credential
+
+Use `Add-FederatedCredentialForGitHub.ps1` from [cloud-admin-toolkit](https://github.com/brands-advisory/cloud-admin-toolkit):
+```powershell
+.\Add-FederatedCredentialForGitHub.ps1 -ConfigName <project-name>
+```
+
+After this step no client secret is stored anywhere. OIDC handles authentication via GitHub's identity provider.
+
+### 5. Create App Registration with Certificate
+
+Use `Create-AppRegistrationWithCertificate.ps1` from [cloud-admin-toolkit](https://github.com/brands-advisory/cloud-admin-toolkit):
+```powershell
+.\Create-AppRegistrationWithCertificate.ps1 -ConfigName <project-name>
+```
+
+This creates the Entra ID App Registration for user authentication and generates a self-signed certificate.
+
+### 6. Configure and Run Setup Script
+```powershell
+# Copy and fill in all values
+cp config.example.ps1 config.ps1
+
+# Set dotnet user-secrets, GitHub Secrets, and generate
+# main.local.bicepparam in one step
 .\setup.ps1 -All
 ```
 
-Afterwards:
-- Local app reads secrets via `dotnet user-secrets`
-- GitHub Actions workflows use the repository secrets
-- `infra/main.local.bicepparam` is ready for `az deployment group create`
+### 7. Push to main — CI/CD takes over
+```bash
+git push origin main
+```
 
-Requires: [GitHub CLI](https://cli.github.com/) for `-GitHub` — `winget install GitHub.cli`
+deploy-infrastructure.yml creates:
+- Key Vault
+- Cosmos DB account, database, container
+- Storage Account with article-images container
+- App Service Plan + Web App
+- All RBAC role assignments (Managed Identity)
 
-> `config.ps1` and `infra/main.local.bicepparam` are both listed in `.gitignore` and will never be committed.
+deploy-app.yml builds and deploys the application.
+
+### 8. Upload Certificate to Key Vault (one-time manual step)
+
+After the first infrastructure deployment, upload the certificate:
+Azure Portal → <key-vault-name> → Certificates → Generate/Import → Import
+→ Upload the .pem file generated by Create-AppRegistrationWithCertificate.ps1
+→ Certificate name must match CERT_NAME in config.ps1
+
+This is the only step that cannot be automated — storing the private key in CI/CD would defeat the purpose of using Key Vault.
+
+### 9. Trigger final deployment
+
+After uploading the certificate, trigger a new deployment:
+```bash
+git commit --allow-empty -m "chore: trigger deployment after certificate upload"
+git push origin main
+```
+
+The application is now fully deployed and operational.
+
+---
+
+> **What is manual vs automated:**
+>
+> | Step | How |
+> |---|---|
+> | Resource Group | Manual — az group create |
+> | Service Principal + OIDC | cloud-admin-toolkit scripts |
+> | App Registration + Certificate | cloud-admin-toolkit scripts |
+> | All Azure resources (KV, Cosmos, Storage, App Service) | Bicep via GitHub Actions |
+> | Certificate upload to Key Vault | Manual — one-time after first deployment |
+> | Application deployment | GitHub Actions |
+> | Configuration | setup.ps1 + config.ps1 |
 
 ## CI/CD
 
@@ -207,9 +242,8 @@ Both workflows use **OIDC Federated Credentials** for authentication — no clie
 
 ### Authentication Setup (OIDC)
 
-1. Create a Service Principal with **Contributor** role on the resource group
-2. Add **User Access Administrator** role on the Key Vault (required for Bicep to set Key Vault role assignments)
-3. Add a Federated Credential to the Service Principal:
+1. Create a Service Principal with **Contributor** and **User Access Administrator** roles on the resource group (see step 3 in [Initial Setup](#initial-setup-once-per-project))
+2. Add a Federated Credential to the Service Principal:
    - **Issuer:** `https://token.actions.githubusercontent.com`
    - **Subject:** `repo:{org}/{repo}:ref:refs/heads/main`
    - **Audiences:** `api://AzureADTokenExchange`

@@ -29,6 +29,14 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01' = {
   name: 'default'
   parent: storageAccount
+  properties: {
+    lastAccessTimeTrackingPolicy: {
+      enable: true
+      name: 'AccessTimeTracking'
+      trackingGranularityInDays: 1
+      blobType: ['blockBlob']
+    }
+  }
 }
 
 resource imageContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
@@ -37,6 +45,44 @@ resource imageContainer 'Microsoft.Storage/storageAccounts/blobServices/containe
   properties: {
     publicAccess: 'Blob'
   }
+}
+
+// ---------------------------------------------------------------------------
+// Lifecycle Management
+//
+// Images not accessed for 120 days are automatically deleted.
+// This removes orphaned images when articles are deleted
+// or images are replaced in the Rich Text Editor.
+// Last access time is tracked per blob with 1-day granularity.
+// ---------------------------------------------------------------------------
+resource lifecyclePolicy 'Microsoft.Storage/storageAccounts/managementPolicies@2023-01-01' = {
+  name: 'default'
+  parent: storageAccount
+  properties: {
+    policy: {
+      rules: [
+        {
+          name: 'delete-unreferenced-images'
+          enabled: true
+          type: 'Lifecycle'
+          definition: {
+            filters: {
+              blobTypes: ['blockBlob']
+              prefixMatch: ['article-images/']
+            }
+            actions: {
+              baseBlob: {
+                delete: {
+                  daysAfterLastAccessTimeGreaterThan: 120
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+  dependsOn: [blobService]
 }
 
 // ---------------------------------------------------------------------------

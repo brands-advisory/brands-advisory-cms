@@ -1,3 +1,4 @@
+@using BrandsAdvisory.Client.Models
 @page "/admin/articles/{id}"
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @attribute [Authorize]
@@ -5,12 +6,21 @@
 @inject IOwnerService OwnerService
 @inject IArticleRepository ArticleRepo
 @inject NavigationManager Nav
+@inject ClientConfig Config
+@inject IJSRuntime JSRuntime
 
 <PageTitle>@(_isNew ? "New Article" : "Edit Article") · Brands Advisory</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold mb-0">@(_isNew ? "New Article" : "Edit Article")</h2>
     <div class="d-flex gap-2">
+        @if (!_isNew)
+        {
+            <button class="btn btn-outline-danger btn-sm" @onclick="DeleteAsync" disabled="@_deleting"
+                    title="Delete article">
+                🗑
+            </button>
+        }
         <button class="btn btn-outline-secondary btn-sm" @onclick="Cancel">Cancel</button>
         <button class="btn btn-outline-light btn-sm" @onclick="SaveAsync" disabled="@_saving">
             @(_saving ? "Saving…" : "Save")
@@ -77,7 +87,7 @@ else
                               Height="500px">
                 <RichTextEditorToolbarSettings Items="@_toolbarItems" />
                 <RichTextEditorImageSettings SaveUrl="/api/images/upload"
-                                             Path="/api/images/upload" />
+                                             Path="@Config.ImageContainerUrl" />
             </SfRichTextEditor>
         </div>
 
@@ -93,6 +103,7 @@ else
     private bool _isNew;
     private bool _ready;
     private bool _saving;
+    private bool _deleting;
 
     private readonly List<ToolbarItemModel> _toolbarItems =
     [
@@ -162,4 +173,14 @@ else
     }
 
     private void Cancel() => Nav.NavigateTo("/articles");
+
+    private async Task DeleteAsync()
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Delete '{_article.Title}'? This cannot be undone."))
+            return;
+
+        _deleting = true;
+        await ArticleRepo.DeleteAsync(_article.Id);
+        Nav.NavigateTo("/articles");
+    }
 }

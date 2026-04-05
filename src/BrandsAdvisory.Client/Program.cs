@@ -21,6 +21,7 @@ if (!string.IsNullOrEmpty(clientConfig?.SyncfusionLicenseKey) &&
 }
 
 builder.Services.AddSyncfusionBlazor();
+builder.Services.AddSingleton(clientConfig ?? new ClientConfig());
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 
