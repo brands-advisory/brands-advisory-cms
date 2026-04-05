@@ -1,6 +1,6 @@
 # Required GitHub Secrets:
 # AZURE_CLIENT_ID            - App ID of sp-brands-advisory-cms-github
-# TENANT_ID            - Entra ID Tenant ID
+# AZURE_TENANT_ID            - Entra ID Tenant ID
 # AZURE_SUBSCRIPTION_ID      - Azure Subscription ID
 # Note: OIDC Federated Credentials - no client secret needed
 #
@@ -19,6 +19,7 @@
 # TENANT_ID                  - Entra ID Tenant ID
 # CLIENT_ID                  - brands-advisory-cms App Registration Client ID
 # SYNCFUSION_LICENSE_KEY     - Syncfusion Community License Key
+# STORAGE_ACCOUNT_NAME       - Azure Storage Account name
 #
 # Trigger: push to main when files in infra/ change
 # Manual trigger: workflow_dispatch
@@ -68,6 +69,7 @@ jobs:
           tenantId=${{ secrets.TENANT_ID }}
           clientId=${{ secrets.CLIENT_ID }}
           syncfusionLicenseKey=${{ secrets.SYNCFUSION_LICENSE_KEY }}
+          storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
         failOnStdErr: false
         deploymentMode: Incremental
 
