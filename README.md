@@ -124,10 +124,15 @@ Public pages use Static SSR and depend only on `Core` interfaces, served from Co
 3. Supported account types: **Single tenant**
 4. Redirect URI: `https://<your-app>.azurewebsites.net/signin-oidc`
 5. After creation:
-   - **Certificates & secrets** → New client secret → copy the value → `__CLIENT_SECRET__`
    - **Overview** → copy **Application (client) ID** → `__CLIENT_ID__`
    - **Overview** → copy **Directory (tenant) ID** → `__TENANT_ID__`
-6. To find your **Owner OID**: go to **Microsoft Entra ID** → **Users** → select your user → copy **Object ID** → `__OWNER_OID__`
+   - **Certificates & secrets** → **Certificates** → upload the certificate public key (`.cer`)
+   - Upload the full certificate (`.pfx` or `.pem`) to **Key Vault** → Certificates
+   - Assign the **Key Vault Certificate User** role to the App Service Managed Identity in Key Vault
+
+The site owner is identified by the **`SiteAdmin` App Role** in Entra ID — no OID configuration needed.
+
+To grant access: **Entra ID → Enterprise Applications → your app → Users and groups → Add → assign role `SiteAdmin`**
 
 ### Configuration Placeholders
 
@@ -160,16 +165,43 @@ bash set-secrets.sh
 
 This uses [`dotnet user-secrets`](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets), which stores secrets outside the project directory and never touches source control.
 
-### GitHub Secrets (for GitHub Actions deployment)
+## GitHub Actions (CI/CD)
 
-The workflow in `.github/workflows/deploy-app.yml` requires two secrets in the repository (`Settings → Secrets and variables → Actions → New repository secret`):
+Authentication uses OIDC Federated Credentials — no client secrets needed.
 
-| Secret name | Value |
+Add the following secrets in `Settings → Secrets and variables → Actions → New repository secret`:
+
+| Secret | Value |
 |---|---|
-| `AZURE_WEBAPP_NAME` | Name of the Azure App Service web app (e.g. `brands-advisory-cms`) |
-| `AZURE_WEBAPP_PUBLISH_PROFILE` | Contents of the publish profile XML — Azure Portal → App Service → **Get publish profile** → copy the full file content |
+| `AZURE_CLIENT_ID` | App ID of the deployment service principal |
+| `AZURE_TENANT_ID` | Entra ID Tenant ID |
+| `AZURE_SUBSCRIPTION_ID` | Azure Subscription ID |
+| `AZURE_RESOURCE_GROUP` | e.g. `rg-brands-advisory` |
+| `AZURE_WEBAPP_NAME` | e.g. `brands-advisory` |
+| `APP_NAME` | Azure Web App name |
+| `PLAN_NAME` | App Service Plan name |
+| `COSMOS_ACCOUNT_NAME` | Cosmos DB account name |
+| `COSMOS_DATABASE_ID` | Database name |
+| `COSMOS_CONTAINER_NAME` | Container name |
+| `KEY_VAULT_NAME` | Key Vault name |
+| `KEY_VAULT_URL` | Key Vault URI |
+| `CERT_NAME` | Certificate name in Key Vault |
+| `CLIENT_ID` | brands-advisory-cms App Registration Client ID |
+| `TENANT_ID` | Entra ID Tenant ID |
+| `SYNCFUSION_LICENSE_KEY` | Syncfusion Community License key |
 
-All application configuration (Entra ID, Cosmos DB, Syncfusion key) is set directly in the App Service configuration via Bicep — no additional GitHub secrets are needed for those values.
+Setup: Create a service principal and add a Federated Credential for GitHub Actions OIDC.  
+See: https://aka.ms/azureactions-oidc
+
+### Service Principal for GitHub Actions
+
+The deployment uses OIDC Federated Credentials. Create a service principal with **Contributor** role on the resource group, and add a Federated Credential:
+
+- **Issuer:** `https://token.actions.githubusercontent.com`
+- **Subject:** `repo:{org}/{repo}:ref:refs/heads/main`
+- **Audiences:** `api://AzureADTokenExchange`
+
+Also assign **User Access Administrator** on the Key Vault to allow the Bicep template to set role assignments.
 
 ### Deploying Infrastructure (Bicep)
 
