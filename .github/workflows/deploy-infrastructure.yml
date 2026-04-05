@@ -17,8 +17,8 @@
 # CERT_NAME                  - brands-advisory-cms
 # TENANT_ID                  - Entra ID Tenant ID
 # CLIENT_ID                  - brands-advisory-cms App Registration Client ID
-# SYNCFUSION_LICENSE_KEY     - Syncfusion Community License Key
 # STORAGE_ACCOUNT_NAME       - Azure Storage Account name
+# Note: SYNCFUSION_LICENSE_KEY is stored in Key Vault, not passed as Bicep parameter
 #
 # Trigger: push to main when files in infra/ change
 # Manual trigger: workflow_dispatch
@@ -66,7 +66,6 @@ jobs:
           keyVaultCertificateName=${{ secrets.CERT_NAME }}
           tenantId=${{ secrets.TENANT_ID }}
           clientId=${{ secrets.CLIENT_ID }}
-          syncfusionLicenseKey=${{ secrets.SYNCFUSION_LICENSE_KEY }}
           storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
         failOnStdErr: false
         deploymentMode: Incremental

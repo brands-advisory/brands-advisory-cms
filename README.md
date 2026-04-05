@@ -6,6 +6,7 @@ This project demonstrates how to build and deploy a production-ready .NET web ap
 - **GitHub Copilot** — AI-assisted development throughout
 - **Blazor Web App** — Static SSR for SEO-optimized public pages, InteractiveWebAssembly for the admin interface
 - **Azure-native** — Cosmos DB, Key Vault, Managed Identity, zero secrets stored anywhere
+  - Key Vault for sensitive configuration — secrets loaded at startup via `AddAzureKeyVault()`, only in production
 - **Infrastructure as Code** — Bicep templates for all Azure resources
 - **CI/CD with GitHub Actions** — automated deployment for both app and infrastructure using OIDC Federated Credentials (no client secrets)
 
@@ -277,7 +278,6 @@ The following secrets are set:
 | Secret | Description |
 |---|---|
 | `AZURE_CLIENT_ID` | App ID of the deployment service principal |
-| `AZURE_TENANT_ID` | Entra ID Tenant ID |
 | `AZURE_SUBSCRIPTION_ID` | Azure Subscription ID |
 | `AZURE_RESOURCE_GROUP` | Resource group name |
 | `AZURE_WEBAPP_NAME` | Azure Web App name |
@@ -290,8 +290,9 @@ The following secrets are set:
 | `CERT_NAME` | Certificate name in Key Vault |
 | `CLIENT_ID` | App Registration Client ID |
 | `TENANT_ID` | Entra ID Tenant ID |
-| `SYNCFUSION_LICENSE_KEY` | Syncfusion Community License key |
 | `STORAGE_ACCOUNT_NAME` | Azure Storage Account name |
+
+> **Note:** `SYNCFUSION_LICENSE_KEY` is **not** a GitHub Secret. It is stored in Azure Key Vault and loaded at startup via `AddAzureKeyVault()`. Set it with `setup.ps1 -KeyVault`.
 
 ### Deploying Infrastructure (Bicep)
 
@@ -316,8 +317,10 @@ az deployment group create \
 This deploys:
 - Azure Cosmos DB account, database, and container
 - Azure App Service Plan + Web App (.NET 10, Linux)
-- All App Service configuration (Entra ID, Cosmos DB endpoint, Syncfusion key)
-- Key Vault RBAC — **Key Vault Certificate User** role for the Web App Managed Identity
+- All App Service configuration (Entra ID, Cosmos DB endpoint, Key Vault URL)
+- Key Vault RBAC — **Key Vault Certificate User** and **Key Vault Secrets User** roles for the Web App Managed Identity
+  - Certificate User: reads the authentication certificate
+  - Secrets User: reads secrets via `AddAzureKeyVault()` at startup (e.g. `Syncfusion:LicenseKey`)
 - Cosmos DB RBAC — **Built-in Data Contributor** role for the Web App Managed Identity
 
 > **Note:** The Key Vault is created automatically by the Bicep template. After the first deployment, upload the authentication certificate to Key Vault manually: **Azure Portal → kv-{name} → Certificates → Generate/Import**. The Key Vault URI is an output of the Bicep deployment and does not need to be configured separately.
@@ -365,6 +368,8 @@ Copy-Item config.example.ps1 config.ps1
 # Edit config.ps1 and replace all __PLACEHOLDER__ values
 .\setup.ps1 -Secrets
 ```
+
+> **Note:** Key Vault is only used in production. Locally, all secrets are set via `dotnet user-secrets` — no Azure Key Vault connection is required during development.
 
 ### Running the app
 
