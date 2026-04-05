@@ -300,3 +300,8 @@ The app starts at `https://localhost:7000`.
 ## License
 
 MIT — see [LICENSE](LICENSE)
+---
+
+Maintained by  
+**Robert Brands**  
+Freelance IT Consultant | Solution Architect | Cloud Adoption & GenAI
