@@ -187,6 +187,8 @@ Both workflows use **OIDC Federated Credentials** for authentication — no clie
 
 See: https://aka.ms/azureactions-oidc
 
+Scripts for creating the service principal and configuring the federated credential are available in [rbrands/cloud-admin-toolkit](https://github.com/rbrands/cloud-admin-toolkit).
+
 ### Required GitHub Secrets
 
 Add the following secrets in `Settings → Secrets and variables → Actions → New repository secret`:
