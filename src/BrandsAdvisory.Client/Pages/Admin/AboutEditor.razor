@@ -72,11 +72,33 @@ else
         @foreach (var (link, index) in _about.Links.Select((l, i) => (l, i)))
         {
             <div class="row g-2 align-items-center mb-2">
-                <div class="col-auto" style="width: 60px;">
-                    <input class="form-control form-control-sm bg-dark text-white border-secondary text-center"
-                           placeholder="Icon"
-                           value="@link.Icon"
-                           @oninput="e => link.Icon = e.Value?.ToString() ?? string.Empty" />
+                <div class="col-auto" style="width: 160px;">
+                    <select class="form-select form-select-sm bg-dark text-white border-secondary"
+                            value="@link.Icon"
+                            @onchange="e => link.Icon = e.Value?.ToString() ?? string.Empty">
+                        <option value="">— none —</option>
+                        <option value="bi-envelope">✉ Email</option>
+                        <option value="bi-linkedin">in LinkedIn</option>
+                        <option value="bi-github">⌥ GitHub</option>
+                        <option value="bi-file-pdf">📄 PDF</option>
+                        <option value="bi-globe">🌐 Website</option>
+                        <option value="bi-twitter-x">𝕏 Twitter/X</option>
+                        <option value="bi-youtube">▶ YouTube</option>
+                        <option value="bi-instagram">📷 Instagram</option>
+                        <option value="bi-telephone">📞 Phone</option>
+                        <option value="bi-calendar">📅 Calendar</option>
+                        <option value="bi-file-earmark-text">📋 CV/Resume</option>
+                        <option value="bi-stack-overflow">SO Stack Overflow</option>
+                        <option value="bi-microsoft">⬡ Microsoft</option>
+                        <option value="bi-building">🏢 Company</option>
+                        <option value="bi-link-45deg">🔗 Link</option>
+                    </select>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    @if (!string.IsNullOrEmpty(link.Icon))
+                    {
+                        <i class="@link.Icon fs-5 text-secondary"></i>
+                    }
                 </div>
                 <div class="col-3">
                     <input class="form-control form-control-sm bg-dark text-white border-secondary"

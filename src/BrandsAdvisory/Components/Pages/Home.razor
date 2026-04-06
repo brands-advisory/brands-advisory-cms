@@ -84,10 +84,10 @@ else
                 @foreach (var link in _about.Links)
                 {
                     <a href="@link.Url" target="_blank" rel="noopener noreferrer"
-                       class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                       class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2">
                         @if (!string.IsNullOrEmpty(link.Icon))
                         {
-                            <span>@link.Icon</span>
+                            <i class="@link.Icon" style="font-size: 0.9rem;"></i>
                         }
                         <span>@link.Label</span>
                     </a>
