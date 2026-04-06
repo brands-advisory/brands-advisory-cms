@@ -58,6 +58,7 @@ if ($Secrets -or $All) {
     dotnet user-secrets set "Storage:BlobEndpoint"                                    $config.StorageBlobEndpoint  -p $project
     dotnet user-secrets set "KeyVault:Url"                                            "https://$($config.KeyVaultName).vault.azure.net" -p $project
     dotnet user-secrets set "Syncfusion:LicenseKey"                                   $config.SyncfusionLicenseKey -p $project
+    dotnet user-secrets set "SiteUrl"                                                  $config.SiteUrl              -p $project
 
     Write-Host "dotnet user-secrets set." -ForegroundColor Green
 }
@@ -112,6 +113,7 @@ param clientId              = '$($config.ClientId)'
 param storageAccountName    = '$($config.StorageAccountName)'
 param appInsightsName       = '$($config.AppInsightsName)'
 param logAnalyticsName      = '$($config.LogAnalyticsName)'
+param siteUrl               = '$($config.SiteUrl)'
 "@
 
     $outputPath = Join-Path $PSScriptRoot "infra/main.local.bicepparam"

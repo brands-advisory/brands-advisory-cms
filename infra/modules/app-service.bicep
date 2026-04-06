@@ -44,6 +44,9 @@ param storageBlobEndpoint string
 @description('Application Insights connection string.')
 param appInsightsConnectionString string
 
+@description('Public site URL, e.g. https://brands-advisory.com. Used for canonical and Open Graph meta tags.')
+param siteUrl string
+
 // ---------------------------------------------------------------------------
 // App Service Plan
 // ---------------------------------------------------------------------------
@@ -151,6 +154,11 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'XDT_MicrosoftApplicationInsights_Mode'
           value: 'Recommended'
+        }
+        // ----- Site URL (canonical + Open Graph meta tags) -----
+        {
+          name: 'SiteUrl'
+          value: siteUrl
         }
       ]
     }

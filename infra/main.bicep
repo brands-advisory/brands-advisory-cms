@@ -55,6 +55,9 @@ param appInsightsName string
 @description('Name of the Log Analytics workspace.')
 param logAnalyticsName string
 
+@description('Public site URL, e.g. https://brands-advisory.com. Used for canonical and Open Graph meta tags.')
+param siteUrl string = 'https://brands-advisory.com'
+
 // ---------------------------------------------------------------------------
 // Module: Cosmos DB
 // ---------------------------------------------------------------------------
@@ -121,6 +124,7 @@ module appService 'modules/app-service.bicep' = {
     clientId: clientId
     storageBlobEndpoint: storage.outputs.blobEndpoint
     appInsightsConnectionString: appInsights.outputs.connectionString
+    siteUrl: siteUrl
   }
 }
 

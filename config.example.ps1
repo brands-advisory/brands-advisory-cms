@@ -38,6 +38,9 @@ $config = @{
     # NOT used for: GitHub Secrets or Bicep parameters
     SyncfusionLicenseKey = "__SYNCFUSION_LICENSE_KEY__"
 
+    # Site
+    SiteUrl              = "https://brands-advisory.com"
+
     # GitHub Actions OIDC
     AzureClientId        = "__AZURE_CLIENT_ID__"
 }

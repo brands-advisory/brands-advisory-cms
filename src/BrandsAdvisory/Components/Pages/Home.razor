@@ -2,8 +2,19 @@
 @attribute [StreamRendering]
 @inject IAboutRepository AboutRepo
 @inject NavigationManager Nav
+@inject IConfiguration Config
 
-<PageTitle>Robert Brands · Brands Advisory</PageTitle>
+<PageTitle>Robert Brands · Freelance IT Consultant</PageTitle>
+<HeadContent>
+    <meta name="description"
+          content="@(_about?.Subtitle ?? "Freelance IT Consultant specializing in Azure, Solution Architecture and GenAI.")" />
+    <meta property="og:title"
+          content="Robert Brands · Freelance IT Consultant" />
+    <meta property="og:description"
+          content="@(_about?.Subtitle ?? "Freelance IT Consultant specializing in Azure, Solution Architecture and GenAI.")" />
+    <meta property="og:url" content="@(Config["SiteUrl"])/" />
+    <link rel="canonical" href="@(Config["SiteUrl"])/" />
+</HeadContent>
 
 @if (_about is null)
 {

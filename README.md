@@ -35,7 +35,7 @@ The application itself is a freelancer portfolio site — publicly readable with
 
 ### Render Modes
 
-- **Static SSR** is the default render mode for all public pages (`/`, `/projects`, `/articles`, `/articles/{slug}`). This ensures fast initial load times and full SEO indexability without JavaScript requirements.
+- **Static SSR** is the default render mode for all public pages (`/`, `/projects`, `/articles`, `/articles/{slug}`). This ensures fast initial load times and full SEO indexability without JavaScript requirements. All public pages include full SEO meta tags: title, description, Open Graph (`og:*`), article tags, and canonical URLs. Article detail pages use the article's own title and summary for dynamic meta tags.
 - **InteractiveWebAssembly** is used for admin edit pages (`/admin/about`, `/admin/projects`, `/admin/articleeditor/{id?}`) that require Syncfusion Grid and Rich Text Editor interactivity. These pages live in the `BrandsAdvisory.Client` Blazor WebAssembly project and are served by the host server. Data is fetched via minimal API endpoints (`/api/about`, `/api/projects`, `/api/articles`) that require the `SiteAdmin` role.
 
 ### Owner-Only Editing

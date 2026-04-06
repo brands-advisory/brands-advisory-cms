@@ -30,3 +30,6 @@ param storageAccountName = '__STORAGE_ACCOUNT_NAME__'
 // Application Insights
 param appInsightsName = '__APP_INSIGHTS_NAME__'
 param logAnalyticsName = '__LOG_ANALYTICS_NAME__'
+
+// Site
+param siteUrl = 'https://brands-advisory.com'
