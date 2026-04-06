@@ -6,7 +6,7 @@
 //
 // Built-in roles:
 //   Storage Blob Data Contributor  ba92f5b4-2d11-453d-a403-e96b0029c9fe
-//   Storage Blob Delegator         2a2b9908-6ea1-4ae2-8e65-a410df84e7d2
+//   Storage Blob Delegator         db58b8e5-c6ad-4a2a-8342-4190687cbf4a
 // ---------------------------------------------------------------------------
 
 @description('Name of the existing Storage Account.')
@@ -49,13 +49,13 @@ resource storageBlobDataContributorAssignment 'Microsoft.Authorization/roleAssig
 // User Delegation SAS tokens from a Managed Identity (no account key).
 // ---------------------------------------------------------------------------
 resource storageBlobDelegatorAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(storageAccount.id, principalId, '2a2b9908-6ea1-4ae2-8e65-a410df84e7d2')
+  name: guid(storageAccount.id, principalId, 'db58b8e5-c6ad-4a2a-8342-4190687cbf4a')
   scope: storageAccount
   properties: {
     // Storage Blob Delegator (built-in)
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',
-      '2a2b9908-6ea1-4ae2-8e65-a410df84e7d2'
+      'db58b8e5-c6ad-4a2a-8342-4190687cbf4a'
     )
     principalId: principalId
     principalType: principalType
