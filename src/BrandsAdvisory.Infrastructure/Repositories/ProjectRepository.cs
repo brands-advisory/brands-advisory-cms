@@ -15,7 +15,7 @@ public class ProjectRepository(CosmosClient client, IConfiguration configuration
     public override async Task<List<Project>> GetAllAsync()
     {
         var query = new QueryDefinition(
-            "SELECT * FROM c WHERE c.type = 'project' ORDER BY c.sortOrder ASC");
+            "SELECT * FROM c WHERE c.type = 'project' ORDER BY c.projectStart DESC");
         var options = new QueryRequestOptions { PartitionKey = new PartitionKey("project") };
 
         return await ExecuteQueryAsync(query, options);

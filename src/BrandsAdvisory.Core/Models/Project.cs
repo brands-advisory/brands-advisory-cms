@@ -9,5 +9,5 @@ public class Project : CosmosDocument
     public string Description { get; set; } = string.Empty;
     public List<string> Tags { get; set; } = [];
     public List<string> Outcomes { get; set; } = [];
-    public int SortOrder { get; set; }
+    public DateTime? ProjectStart { get; set; }
 }

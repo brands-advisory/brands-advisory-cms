@@ -41,17 +41,23 @@ else
     <div class="card-dark p-4 d-flex flex-column gap-3">
 
         <div class="row g-3">
-            <div class="col-12 col-md-5">
+            <div class="col-12 col-md-4">
                 <label class="form-label text-secondary small">Title</label>
                 <input class="form-control bg-dark text-white border-secondary" @bind="_form.Title" />
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-3">
                 <label class="form-label text-secondary small">Customer</label>
                 <input class="form-control bg-dark text-white border-secondary" @bind="_form.Customer" />
             </div>
             <div class="col-12 col-md-3">
                 <label class="form-label text-secondary small">Period</label>
                 <input class="form-control bg-dark text-white border-secondary" @bind="_form.Period" />
+            </div>
+            <div class="col-12 col-md-2">
+                <label class="form-label text-secondary small">Project Start</label>
+                <input class="form-control bg-dark text-white border-secondary" type="date"
+                       @bind="_form.ProjectStart" @bind:format="yyyy-MM-dd" />
+                <div class="form-text text-secondary small">Used for sorting only</div>
             </div>
         </div>
 
@@ -90,7 +96,6 @@ else
 
     private ProjectForm _form = new();
     private string _projectId = string.Empty;
-    private int _sortOrder;
     private bool _isNew;
     private bool _ready;
     private bool _saving;
@@ -125,8 +130,6 @@ else
         if (_isNew)
         {
             _projectId = Guid.NewGuid().ToString();
-            var all = await ProjectRepo.GetAllAsync();
-            _sortOrder = all.Count > 0 ? all.Max(p => p.SortOrder) + 1 : 1;
         }
         else
         {
@@ -138,7 +141,6 @@ else
             }
 
             _projectId = existing.Id;
-            _sortOrder = existing.SortOrder;
             _form = new ProjectForm
             {
                 Title = existing.Title,
@@ -146,7 +148,8 @@ else
                 Period = existing.Period,
                 Tags = string.Join(", ", existing.Tags),
                 Description = existing.Description,
-                Outcomes = string.Join("\n", existing.Outcomes)
+                Outcomes = string.Join("\n", existing.Outcomes),
+                ProjectStart = existing.ProjectStart
             };
         }
 
@@ -164,7 +167,7 @@ else
             Customer = _form.Customer,
             Period = _form.Period,
             Description = _form.Description,
-            SortOrder = _sortOrder,
+            ProjectStart = _form.ProjectStart,
             Tags = _form.Tags
                 .Split(',')
                 .Select(t => t.Trim())
@@ -247,5 +250,6 @@ else
         public string Tags { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Outcomes { get; set; } = string.Empty;
+        public DateTime? ProjectStart { get; set; }
     }
 }

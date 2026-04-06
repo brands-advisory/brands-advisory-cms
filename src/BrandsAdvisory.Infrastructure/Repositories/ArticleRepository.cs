@@ -12,6 +12,16 @@ public class ArticleRepository(CosmosClient client, IConfiguration configuration
     : CosmosRepository<Article>(client, configuration), IArticleRepository
 {
     /// <inheritdoc/>
+    public override async Task<List<Article>> GetAllAsync()
+    {
+        var query = new QueryDefinition(
+            "SELECT * FROM c WHERE c.type = 'article' ORDER BY c.createdAt DESC");
+        var options = new QueryRequestOptions { PartitionKey = new PartitionKey("article") };
+
+        return await ExecuteQueryAsync(query, options);
+    }
+
+    /// <inheritdoc/>
     public async Task<Article?> GetBySlugAsync(string slug)
     {
         var query = new QueryDefinition(
