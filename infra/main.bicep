@@ -4,10 +4,11 @@
 // Deploys:
 //   - Azure Cosmos DB account, database, and container
 //   - Azure App Service Plan + Web App (.NET 10, Linux)
-//   - Key Vault Certificate User role assignment for the Web App identity
-//
-// The Key Vault itself is NOT created here; it is assumed to already exist.
-// Set existingKeyVault = true (default) to reference it for RBAC.
+//   - Azure Key Vault
+//   - Azure Storage Account (images)
+//   - Application Insights + Log Analytics Workspace
+//   - RBAC role assignments for the Web App Managed Identity
+//   - Custom domain + SSL binding (conditional, only when siteUrl is set)
 // ---------------------------------------------------------------------------
 
 targetScope = 'resourceGroup'
