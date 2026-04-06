@@ -56,7 +56,14 @@ param appInsightsName string
 param logAnalyticsName string
 
 @description('Public site URL, e.g. https://brands-advisory.com. Used for canonical and Open Graph meta tags.')
-param siteUrl string = 'https://brands-advisory.com'
+param siteUrl string
+
+// Derive the apex domain from siteUrl for the custom domain module.
+// Empty when siteUrl still points to azurewebsites.net (= no custom domain).
+// Strips https://, http://, and the www. prefix to get the bare apex domain.
+var apexDomain = contains(siteUrl, 'azurewebsites.net')
+  ? ''
+  : replace(replace(replace(siteUrl, 'https://', ''), 'http://', ''), 'www.', '')
 
 // ---------------------------------------------------------------------------
 // Module: Cosmos DB
@@ -158,6 +165,21 @@ module storageRbac 'modules/storage-rbac.bicep' = {
   params: {
     storageAccountName: storageAccountName
     principalId: appService.outputs.principalId
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Module: Custom Domain + Managed SSL (optional)
+// Deployed automatically when siteUrl is not an azurewebsites.net URL.
+// DNS records must be configured at the registrar before running this.
+// ---------------------------------------------------------------------------
+module domain 'modules/custom-domain.bicep' = if (!empty(apexDomain)) {
+  name: 'custom-domain'
+  params: {
+    location: location
+    appName: appName
+    customDomain: apexDomain
+    appServicePlanId: appService.outputs.appServicePlanId
   }
 }
 

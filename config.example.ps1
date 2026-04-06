@@ -39,7 +39,12 @@ $config = @{
     SyncfusionLicenseKey = "__SYNCFUSION_LICENSE_KEY__"
 
     # Site
-    SiteUrl              = "https://brands-advisory.com"
+    # Used for: canonical URLs, Open Graph meta tags, and custom domain deployment.
+    # If this is a custom domain (not *.azurewebsites.net), the Bicep template
+    # automatically deploys the hostname binding and a free managed SSL certificate
+    # for the www subdomain. DNS records must exist at the registrar first.
+    # See README.md → Custom Domain for required DNS records.
+    SiteUrl              = "https://brands-advisory.azurewebsites.net"
 
     # GitHub Actions OIDC
     AzureClientId        = "__AZURE_CLIENT_ID__"

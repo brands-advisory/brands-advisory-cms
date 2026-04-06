@@ -32,4 +32,6 @@ param appInsightsName = '__APP_INSIGHTS_NAME__'
 param logAnalyticsName = '__LOG_ANALYTICS_NAME__'
 
 // Site
-param siteUrl = 'https://brands-advisory.com'
+// Set to your custom domain (e.g. https://brands-advisory.com) or the azurewebsites.net default URL.
+// If this is a custom domain, the Bicep template automatically deploys hostname bindings + managed SSL.
+param siteUrl = '__SITE_URL__'

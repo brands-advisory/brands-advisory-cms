@@ -355,6 +355,75 @@ Before going live, fill in the placeholder values in [`src/BrandsAdvisory/Compon
 
 ---
 
+### Custom Domain (optional)
+
+Custom domain support is built into the Bicep templates. When `customDomain` is non-empty, `main.bicep` deploys `modules/custom-domain.bicep`, which:
+
+- Adds an apex hostname binding (ownership verification via A + TXT records)
+- Adds a `www` hostname binding with a **free App Service managed certificate** (CNAME-based SSL)
+
+The `www` subdomain gets full HTTPS. For the apex domain, redirect `brands-advisory.com` → `https://www.brands-advisory.com` at your DNS registrar (most registrars support this natively). This is the recommended pattern and avoids the complexity of apex domain certificates.
+
+#### Step 1 — Configure DNS at your registrar
+
+| Record type | Name | Value |
+|---|---|---|
+| `CNAME` | `www` | `<appName>.azurewebsites.net` |
+| `TXT` | `asuid.www` | *(domain verification ID — see below)* |
+| `A` | `@` (apex) | *(outbound IP of the App Service)* |
+| `TXT` | `asuid` | *(domain verification ID — see below)* |
+
+**Get the domain verification ID:**
+```
+Azure Portal → App Service → Custom domains → Custom domain verification ID
+```
+
+**Get the outbound IP address:**
+```
+Azure Portal → App Service → Properties → Outbound IP addresses (first entry)
+```
+
+> **DNS propagation:** Allow 5–30 minutes after adding records before deploying. The Bicep deployment will fail if Azure cannot resolve the domain.
+
+#### Step 2 — Set `SiteUrl` to your custom domain in config.ps1
+
+```powershell
+SiteUrl = "https://www.brands-advisory.com"  # or https://brands-advisory.com
+```
+
+`main.bicep` derives the apex domain from `SiteUrl` automatically: non-`azurewebsites.net` URLs trigger the custom domain deployment.
+
+#### Step 3 — Re-run setup to update secrets and bicepparam
+
+```powershell
+.\setup.ps1 -Bicep
+```
+
+#### Step 4 — Push to trigger deployment
+
+```bash
+git commit --allow-empty -m "chore: deploy custom domain"
+git push origin main
+```
+
+`deploy-infrastructure.yml` passes `customDomain=${{ secrets.CUSTOM_DOMAIN }}` to Bicep. The deployment:
+1. Adds hostname bindings for apex and www
+2. Issues a free managed certificate for `www.{customDomain}` (CNAME validation)
+3. Enables SNI SSL on the www binding via a nested deployment
+
+#### After deployment
+
+Add `https://www.{customDomain}/signin-oidc` to the **Redirect URIs** in your Entra ID App Registration:
+```
+Azure Portal → App registrations → your app → Authentication → Add URI
+```
+
+#### Required GitHub Secret
+
+No additional secret required — `SiteUrl` is already the single source of truth. The apex domain is derived from it automatically in Bicep.
+
+---
+
 ## Local Development
 
 ### Prerequisites
