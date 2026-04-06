@@ -85,6 +85,7 @@ if ($GitHub -or $All) {
     gh secret set STORAGE_ACCOUNT_NAME   --body $config.StorageAccountName
     gh secret set APP_INSIGHTS_NAME      --body $config.AppInsightsName
     gh secret set LOG_ANALYTICS_NAME     --body $config.LogAnalyticsName
+    gh secret set SITE_URL               --body $config.SiteUrl
 
     Write-Host "GitHub Secrets set." -ForegroundColor Green
 }

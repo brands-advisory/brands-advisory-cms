@@ -18,6 +18,7 @@
 # TENANT_ID                  - Entra ID Tenant ID
 # CLIENT_ID                  - brands-advisory-cms App Registration Client ID
 # STORAGE_ACCOUNT_NAME       - Azure Storage Account name
+# SITE_URL                   - Public site URL, e.g. https://brands-advisory.com
 # Note: SYNCFUSION_LICENSE_KEY is stored in Key Vault, not passed as Bicep parameter
 #
 # Trigger: push to main when files in infra/ change
@@ -69,6 +70,7 @@ jobs:
           storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
           appInsightsName=${{ secrets.APP_INSIGHTS_NAME }}
           logAnalyticsName=${{ secrets.LOG_ANALYTICS_NAME }}
+          siteUrl=${{ secrets.SITE_URL }}
         failOnStdErr: false
         deploymentMode: Incremental
 

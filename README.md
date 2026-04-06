@@ -311,6 +311,7 @@ The following secrets are set:
 | `STORAGE_ACCOUNT_NAME` | Azure Storage Account name |
 | `APP_INSIGHTS_NAME` | Application Insights resource name |
 | `LOG_ANALYTICS_NAME` | Log Analytics workspace name |
+| `SITE_URL` | Public site URL, e.g. `https://brands-advisory.com` |
 
 > **Note:** `SYNCFUSION_LICENSE_KEY` is **not** a GitHub Secret. It is stored in Azure Key Vault and loaded at startup via `AddAzureKeyVault()`. Set it with `setup.ps1 -KeyVault`.
 
