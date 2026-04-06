@@ -28,6 +28,10 @@ $config = @{
     StorageAccountName   = "__STORAGE_ACCOUNT_NAME__"
     StorageBlobEndpoint  = "__STORAGE_BLOB_ENDPOINT__"
 
+    # Application Insights
+    AppInsightsName    = "__APP_INSIGHTS_NAME__"
+    LogAnalyticsName   = "__LOG_ANALYTICS_NAME__"
+
     # Syncfusion
     # Used for: dotnet user-secrets (local)
     #            Key Vault secret (production)

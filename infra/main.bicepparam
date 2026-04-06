@@ -26,3 +26,7 @@ param clientId = '__CLIENT_ID__'
 
 // Storage
 param storageAccountName = '__STORAGE_ACCOUNT_NAME__'
+
+// Application Insights
+param appInsightsName = '__APP_INSIGHTS_NAME__'
+param logAnalyticsName = '__LOG_ANALYTICS_NAME__'

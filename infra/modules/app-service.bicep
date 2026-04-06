@@ -41,6 +41,9 @@ param clientId string
 @description('Primary blob endpoint URI of the Storage Account for article images.')
 param storageBlobEndpoint string
 
+@description('Application Insights connection string.')
+param appInsightsConnectionString string
+
 // ---------------------------------------------------------------------------
 // App Service Plan
 // ---------------------------------------------------------------------------
@@ -124,6 +127,19 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'KeyVault__Url'
           value: keyVaultUrl
+        }
+        // ----- Application Insights -----
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: appInsightsConnectionString
+        }
+        {
+          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          value: '~3'
+        }
+        {
+          name: 'XDT_MicrosoftApplicationInsights_Mode'
+          value: 'Recommended'
         }
       ]
     }

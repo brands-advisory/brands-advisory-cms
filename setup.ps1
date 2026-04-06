@@ -82,6 +82,8 @@ if ($GitHub -or $All) {
     gh secret set CLIENT_ID              --body $config.ClientId
     gh secret set TENANT_ID              --body $config.TenantId
     gh secret set STORAGE_ACCOUNT_NAME   --body $config.StorageAccountName
+    gh secret set APP_INSIGHTS_NAME      --body $config.AppInsightsName
+    gh secret set LOG_ANALYTICS_NAME     --body $config.LogAnalyticsName
 
     Write-Host "GitHub Secrets set." -ForegroundColor Green
 }
@@ -108,6 +110,8 @@ param keyVaultCertificateName = '$($config.CertName)'
 param tenantId              = '$($config.TenantId)'
 param clientId              = '$($config.ClientId)'
 param storageAccountName    = '$($config.StorageAccountName)'
+param appInsightsName       = '$($config.AppInsightsName)'
+param logAnalyticsName      = '$($config.LogAnalyticsName)'
 "@
 
     $outputPath = Join-Path $PSScriptRoot "infra/main.local.bicepparam"

@@ -67,6 +67,8 @@ jobs:
           tenantId=${{ secrets.TENANT_ID }}
           clientId=${{ secrets.CLIENT_ID }}
           storageAccountName=${{ secrets.STORAGE_ACCOUNT_NAME }}
+          appInsightsName=${{ secrets.APP_INSIGHTS_NAME }}
+          logAnalyticsName=${{ secrets.LOG_ANALYTICS_NAME }}
         failOnStdErr: false
         deploymentMode: Incremental
 

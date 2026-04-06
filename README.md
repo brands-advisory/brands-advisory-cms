@@ -7,6 +7,7 @@ This project demonstrates how to build and deploy a production-ready .NET web ap
 - **Blazor Web App** — Static SSR for SEO-optimized public pages, InteractiveWebAssembly for the admin interface
 - **Azure-native** — Cosmos DB, Key Vault, Managed Identity, zero secrets stored anywhere
   - Key Vault for sensitive configuration — secrets loaded at startup via `AddAzureKeyVault()`, only in production
+  - Application Insights for request tracking, dependency monitoring, and exception logging
 - **Infrastructure as Code** — Bicep templates for all Azure resources
 - **CI/CD with GitHub Actions** — automated deployment for both app and infrastructure using OIDC Federated Credentials (no client secrets)
 
@@ -26,6 +27,7 @@ The application itself is a freelancer portfolio site — publicly readable with
 | Authentication | [Microsoft Entra ID](https://learn.microsoft.com/en-us/entra/identity/) via [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) |
 | UI Components | [Syncfusion Blazor](https://www.syncfusion.com/blazor-components) (Community License) |
 | CI/CD | [GitHub Actions](https://docs.github.com/en/actions) |
+| Observability | Azure Application Insights + Log Analytics |
 
 ---
 
@@ -51,6 +53,22 @@ IsOwner cascaded as bool to all Blazor components
 ```
 
 To grant access: **Entra ID → Enterprise Applications → your app → Users and groups → Add user/group → assign role `SiteAdmin`**.
+
+### Observability
+
+Application Insights is configured with a Log Analytics workspace backend.
+Telemetry is collected automatically for:
+- All HTTP requests (Static SSR and API endpoints)
+- Dependency calls (Cosmos DB, Key Vault, Azure Storage)
+- Exceptions and failed requests
+- Performance metrics
+
+The connection string is stored in App Service configuration
+(`APPLICATIONINSIGHTS_CONNECTION_STRING`) — not a secret,
+safe to store as an App Setting.
+
+Locally, Application Insights telemetry is disabled by default
+unless `APPLICATIONINSIGHTS_CONNECTION_STRING` is set in user-secrets.
 
 ### Data Model
 
@@ -291,6 +309,8 @@ The following secrets are set:
 | `CLIENT_ID` | App Registration Client ID |
 | `TENANT_ID` | Entra ID Tenant ID |
 | `STORAGE_ACCOUNT_NAME` | Azure Storage Account name |
+| `APP_INSIGHTS_NAME` | Application Insights resource name |
+| `LOG_ANALYTICS_NAME` | Log Analytics workspace name |
 
 > **Note:** `SYNCFUSION_LICENSE_KEY` is **not** a GitHub Secret. It is stored in Azure Key Vault and loaded at startup via `AddAzureKeyVault()`. Set it with `setup.ps1 -KeyVault`.
 

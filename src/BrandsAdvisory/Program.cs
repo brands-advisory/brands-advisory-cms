@@ -45,6 +45,13 @@ var syncfusionKey = builder.Configuration["Syncfusion:LicenseKey"];
 if (!string.IsNullOrEmpty(syncfusionKey))
     Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncfusionKey);
 
+// Application Insights
+// Automatically tracks requests, dependencies (Cosmos DB, Key Vault, Storage),
+// exceptions, and performance metrics.
+// Connection string is set via App Service configuration:
+// APPLICATIONINSIGHTS_CONNECTION_STRING
+builder.Services.AddApplicationInsightsTelemetry();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()

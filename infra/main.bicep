@@ -49,6 +49,12 @@ param clientId string
 @description('Globally unique name for the Storage Account (3-24 lowercase alphanumeric).')
 param storageAccountName string
 
+@description('Name of the Application Insights resource.')
+param appInsightsName string
+
+@description('Name of the Log Analytics workspace.')
+param logAnalyticsName string
+
 // ---------------------------------------------------------------------------
 // Module: Cosmos DB
 // ---------------------------------------------------------------------------
@@ -86,6 +92,18 @@ module storage 'modules/storage.bicep' = {
 }
 
 // ---------------------------------------------------------------------------
+// Module: Application Insights + Log Analytics
+// ---------------------------------------------------------------------------
+module appInsights 'modules/appinsights.bicep' = {
+  name: 'appinsights'
+  params: {
+    location: location
+    appInsightsName: appInsightsName
+    logAnalyticsName: logAnalyticsName
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Module: App Service + Web App
 // ---------------------------------------------------------------------------
 module appService 'modules/app-service.bicep' = {
@@ -102,6 +120,7 @@ module appService 'modules/app-service.bicep' = {
     tenantId: tenantId
     clientId: clientId
     storageBlobEndpoint: storage.outputs.blobEndpoint
+    appInsightsConnectionString: appInsights.outputs.connectionString
   }
 }
 
