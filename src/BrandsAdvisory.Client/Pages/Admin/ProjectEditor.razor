@@ -63,10 +63,13 @@ else
 
         <div>
             <label class="form-label text-secondary small">Description</label>
-            <SfRichTextEditor @bind-Value="_form.Description" Height="300px">
+            <SfRichTextEditor Value="@_form.Description"
+                              ValueChanged="@OnDescriptionChanged"
+                              Height="300px">
                 <RichTextEditorToolbarSettings Items="@_toolbarItems" />
                 <RichTextEditorImageSettings SaveUrl="/api/images/upload"
                                              Path="@Config.ImageContainerUrl" />
+                <RichTextEditorEvents OnImageUploadSuccess="@OnImageUploadSuccess" />
             </SfRichTextEditor>
         </div>
 
@@ -176,6 +179,52 @@ else
 
         await ProjectRepo.UpsertAsync(project);
         Nav.NavigateTo("/projects");
+    }
+
+    // OnImageUploadSuccess fires BEFORE ValueChanged updates _form.Description.
+    // Store the pending fix here; OnDescriptionChanged applies it when ValueChanged fires.
+    private string? _pendingWrongSrc;
+    private string? _pendingBlobUrl;
+
+    private void OnImageUploadSuccess(ImageSuccessEventArgs args)
+    {
+        var blobUrl = ParseXBlobUrlHeader(args.Response?.Headers);
+        if (string.IsNullOrEmpty(blobUrl)) return;
+        _pendingWrongSrc = Config.ImageContainerUrl.TrimEnd('/') + "/" + args.File?.Name;
+        _pendingBlobUrl = blobUrl;
+    }
+
+    private async Task OnDescriptionChanged(string value)
+    {
+        string? wrongSrc = null;
+        string? correctSrc = null;
+
+        if (_pendingWrongSrc is not null && _pendingBlobUrl is not null
+            && value.Contains(_pendingWrongSrc))
+        {
+            wrongSrc = _pendingWrongSrc;
+            correctSrc = _pendingBlobUrl;
+            value = value.Replace(wrongSrc, correctSrc);
+            _pendingWrongSrc = null;
+            _pendingBlobUrl = null;
+        }
+
+        _form.Description = value;
+
+        // Also patch the editor DOM so the image displays immediately.
+        if (wrongSrc is not null && correctSrc is not null)
+            await JSRuntime.InvokeVoidAsync("sfFixImageSrc", wrongSrc, correctSrc);
+    }
+
+    private static string? ParseXBlobUrlHeader(string? headers)
+    {
+        if (string.IsNullOrEmpty(headers)) return null;
+        foreach (var line in headers.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (line.StartsWith("x-blob-url:", StringComparison.OrdinalIgnoreCase))
+                return line["x-blob-url:".Length..].Trim();
+        }
+        return null;
     }
 
     private void Cancel() => Nav.NavigateTo("/projects");

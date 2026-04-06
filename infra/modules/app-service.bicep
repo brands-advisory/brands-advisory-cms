@@ -74,11 +74,22 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     httpsOnly: true
+    // ARR Affinity disabled: sticky sessions are only needed
+    // for SignalR (Interactive Server mode).
+    // This app uses Static SSR + InteractiveWebAssembly —
+    // no server-side state, no persistent connections.
+    // Disabling also removes the ARRAffinity cookie which
+    // is irrelevant for this architecture and adds
+    // unnecessary cookie overhead (GDPR consideration).
+    clientAffinityEnabled: false
     siteConfig: {
       linuxFxVersion: dotnetVersion
       appCommandLine: 'dotnet BrandsAdvisory.dll'
       // alwaysOn requires at least a Standard plan; disabled for B1
       alwaysOn: false
+      // HTTP/2 enables multiplexing and header compression
+      // for faster loading of Blazor's JS/CSS assets.
+      http20Enabled: true
       appSettings: [
         {
           name: 'ASPNETCORE_ENVIRONMENT'
