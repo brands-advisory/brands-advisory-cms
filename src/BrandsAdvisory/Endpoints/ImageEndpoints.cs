@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
@@ -58,11 +59,20 @@ public static class ImageEndpoints
                             HttpHeaders = new BlobHttpHeaders { ContentType = contentType }
                         });
 
-                        // Expose the final GUID blob URL as a response header so the
-                        // Blazor WASM client can correct the img src that Syncfusion
-                        // constructs from Path + originalFileName (which would be wrong).
-                        context.Response.Headers["X-Blob-Url"] = blobClient.Uri.ToString();
-                        return Results.Text(blobClient.Uri.ToString());
+                        var blobUrl = blobClient.Uri.ToString();
+
+                        // X-Blob-Url header: fallback for Syncfusion versions where
+                        // the JSON response body is not exposed via ImageSuccessEventArgs.
+                        context.Response.Headers["X-Blob-Url"] = blobUrl;
+
+                        return Results.Ok(new ImageUploadResponse(
+                            Success: true,
+                            Name: blobName,
+                            Url: blobUrl,
+                            File: new ImageFileInfo(
+                                Name: blobName,
+                                Size: processedStream.Length,
+                                Type: contentType)));
                     }
                 }
                 catch (Exception ex)
@@ -73,6 +83,52 @@ public static class ImageEndpoints
             })
             .RequireAuthorization(p => p.RequireRole("SiteAdmin"))
             .DisableAntiforgery();
+
+        // Returns a short-lived write SAS URI for direct browser-to-blob uploads.
+        // Requires the Web App Managed Identity to have the 'Storage Blob Delegator' role
+        // on the storage account (in addition to the existing 'Storage Blob Data Contributor').
+        // Assign with: az role assignment create --assignee <principalId> \
+        //   --role "Storage Blob Delegator" --scope /subscriptions/.../storageAccounts/<name>
+        app.MapGet("/api/images/sas", async (IConfiguration config) =>
+        {
+            var endpoint = config["Storage:BlobEndpoint"];
+            if (string.IsNullOrEmpty(endpoint))
+                return Results.Problem("Storage endpoint is not configured.");
+
+            var credential = new DefaultAzureCredential();
+            var blobServiceClient = new BlobServiceClient(new Uri(endpoint), credential);
+            var containerClient = blobServiceClient.GetBlobContainerClient("article-images");
+
+            var blobName = $"{Guid.NewGuid():N}.png";
+            var blobClient = containerClient.GetBlobClient(blobName);
+
+            // User Delegation Key: required when using Managed Identity (no account key available).
+            // Slightly back-dated start time to tolerate minor clock skew between servers.
+            var delegationKey = await blobServiceClient.GetUserDelegationKeyAsync(
+                DateTimeOffset.UtcNow.AddMinutes(-5),
+                DateTimeOffset.UtcNow.AddMinutes(5));
+
+            var sasBuilder = new BlobSasBuilder
+            {
+                BlobContainerName = "article-images",
+                BlobName = blobName,
+                Resource = "b",
+                StartsOn = DateTimeOffset.UtcNow.AddMinutes(-5),
+                ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(5)
+            };
+            sasBuilder.SetPermissions(BlobSasPermissions.Write | BlobSasPermissions.Create);
+
+            var sasParams = sasBuilder.ToSasQueryParameters(delegationKey, blobServiceClient.AccountName);
+            var uriBuilder = new Azure.Storage.Blobs.BlobUriBuilder(blobClient.Uri) { Sas = sasParams };
+
+            return Results.Ok(new
+            {
+                Sas = uriBuilder.ToUri().ToString(),
+                PublicLink = blobClient.Uri.ToString(),
+                BlobName = blobName
+            });
+        })
+        .RequireAuthorization(p => p.RequireRole("SiteAdmin"));
 
         return app;
     }
@@ -126,3 +182,9 @@ public static class ImageEndpoints
         return (outputStream, contentType, extension);
     }
 }
+
+/// <summary>Response returned by the image upload endpoint.</summary>
+public record ImageUploadResponse(bool Success, string Name, string Url, ImageFileInfo File);
+
+/// <summary>File metadata included in <see cref="ImageUploadResponse"/>.</summary>
+public record ImageFileInfo(string Name, long Size, string Type);

@@ -181,7 +181,7 @@ else
 
     private void OnImageUploadSuccess(ImageSuccessEventArgs args)
     {
-        var blobUrl = ParseXBlobUrlHeader(args.Response?.Headers);
+        var blobUrl = ExtractBlobUrl(args);
         if (string.IsNullOrEmpty(blobUrl)) return;
         _pendingWrongSrc = Config.ImageContainerUrl.TrimEnd('/') + "/" + args.File?.Name;
         _pendingBlobUrl = blobUrl;
@@ -209,10 +209,12 @@ else
             await JSRuntime.InvokeVoidAsync("sfFixImageSrc", wrongSrc, correctSrc);
     }
 
-    private static string? ParseXBlobUrlHeader(string? headers)
+    private static string? ExtractBlobUrl(ImageSuccessEventArgs args)
     {
-        if (string.IsNullOrEmpty(headers)) return null;
-        foreach (var line in headers.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries))
+        // Syncfusion's ResponseEventArgs exposes response headers but not the body.
+        // The endpoint sets X-Blob-Url so we can retrieve the correct GUID blob URL here.
+        if (string.IsNullOrEmpty(args.Response?.Headers)) return null;
+        foreach (var line in args.Response.Headers.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries))
         {
             if (line.StartsWith("x-blob-url:", StringComparison.OrdinalIgnoreCase))
                 return line["x-blob-url:".Length..].Trim();

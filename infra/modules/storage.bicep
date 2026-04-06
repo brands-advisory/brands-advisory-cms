@@ -30,6 +30,21 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2023-01-01'
   name: 'default'
   parent: storageAccount
   properties: {
+    // CORS: allow direct browser-to-blob uploads (used by the /api/images/sas endpoint).
+    // PUT + OPTIONS are required for single-part uploads.
+    // The wildcard origin is intentional — blob URLs must be publicly accessible,
+    // and restricting by origin here would break uploads from custom domains.
+    cors: {
+      corsRules: [
+        {
+          allowedOrigins: ['*']
+          allowedMethods: ['GET', 'PUT', 'OPTIONS']
+          allowedHeaders: ['*']
+          exposedHeaders: ['ETag']
+          maxAgeInSeconds: 3600
+        }
+      ]
+    }
     lastAccessTimeTrackingPolicy: {
       enable: true
       name: 'AccessTimeTracking'

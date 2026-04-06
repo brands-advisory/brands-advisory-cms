@@ -1,11 +1,12 @@
 // ---------------------------------------------------------------------------
-// Storage RBAC — Storage Blob Data Contributor role assignment
+// Storage RBAC — Storage Blob Data Contributor + Storage Blob Delegator
 //
-// Grants the Web App Managed Identity read/write/delete access to blobs
-// in the Storage Account. Used to upload article images via the API.
+// Storage Blob Data Contributor: read/write/delete blobs (server-side upload API)
+// Storage Blob Delegator: issue User Delegation Keys for SAS tokens (direct upload)
 //
-// Built-in role: Storage Blob Data Contributor
-// Role Definition ID: ba92f5b4-2d11-453d-a403-e96b0029c9fe
+// Built-in roles:
+//   Storage Blob Data Contributor  ba92f5b4-2d11-453d-a403-e96b0029c9fe
+//   Storage Blob Delegator         2a2b9908-6ea1-4ae2-8e65-a410df84e7d2
 // ---------------------------------------------------------------------------
 
 @description('Name of the existing Storage Account.')
@@ -36,6 +37,25 @@ resource storageBlobDataContributorAssignment 'Microsoft.Authorization/roleAssig
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',
       'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+    )
+    principalId: principalId
+    principalType: principalType
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Role Assignment — Storage Blob Delegator
+// Required for GetUserDelegationKeyAsync(), which is needed to issue
+// User Delegation SAS tokens from a Managed Identity (no account key).
+// ---------------------------------------------------------------------------
+resource storageBlobDelegatorAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(storageAccount.id, principalId, '2a2b9908-6ea1-4ae2-8e65-a410df84e7d2')
+  scope: storageAccount
+  properties: {
+    // Storage Blob Delegator (built-in)
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      '2a2b9908-6ea1-4ae2-8e65-a410df84e7d2'
     )
     principalId: principalId
     principalType: principalType
