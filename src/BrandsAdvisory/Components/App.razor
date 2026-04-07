@@ -18,9 +18,10 @@
     <meta property="og:site_name" content="Brands Advisory" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta property="og:image" content="@(Config["SiteUrl"])/images/brands-advisory-og.png" />
     <link rel="apple-touch-icon" href="/images/brands-advisory-192.png" />
     <HeadOutlet />
+    <!-- og:image fallback — overridden by page-level HeadContent if present (page-specific tag appears first) -->
+    <meta property="og:image" content="@(Config["SiteUrl"])/images/brands-advisory-og.png" />
 </head>
 
 <body>
