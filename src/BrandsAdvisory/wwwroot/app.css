@@ -54,3 +54,18 @@ h3[tabindex="-1"]:focus {
     outline: none;
     box-shadow: none;
 }
+
+/* Syncfusion RTE images - responsive on mobile */
+.e-content img,
+.rte-content img,
+article img {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Also fix images in article detail page */
+.article-content img {
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 8px;
+}

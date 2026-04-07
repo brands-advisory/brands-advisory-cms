@@ -6,7 +6,7 @@
 #
 # Authentication: OIDC Federated Credentials (no secrets)
 # Setup: Add federated credential in Entra ID for this repo/branch
-# See: https://aka.ms/azureactions-oidc
+# See: https://docs.github.com/en/actions/concepts/security/openid-connect
 # AZURE_RESOURCE_GROUP       - rg-brands-advisory
 # APP_NAME                   - brands-advisory
 # PLAN_NAME                  - plan-brands-advisory

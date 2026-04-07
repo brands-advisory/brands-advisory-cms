@@ -82,6 +82,21 @@ else
         </div>
 
         <div>
+            <label class="form-label text-secondary small">
+                Title Image (optional)
+            </label>
+            <ImageUploader
+                @bind-ImageUrl="_article.TitleImageUrl"
+                MaxWidth="1200"
+                MaxHeight="630"
+                Label="Article title image"
+                ShowUrl="false" />
+            <div class="form-text text-secondary small">
+                Recommended: 1200×630px (Open Graph ratio)
+            </div>
+        </div>
+
+        <div>
             <label class="form-label text-secondary small">Content</label>
             <SfRichTextEditor Value="@_article.Content"
                               ValueChanged="@OnContentChanged"

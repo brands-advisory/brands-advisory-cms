@@ -283,7 +283,12 @@ Both workflows use **OIDC Federated Credentials** for authentication — no clie
    - **Subject:** `repo:{org}/{repo}:ref:refs/heads/main`
    - **Audiences:** `api://AzureADTokenExchange`
 
-See: https://aka.ms/azureactions-oidc
+See: https://docs.github.com/en/actions/concepts/security/openid-connect
+
+> **How OIDC authentication works in the workflows:**
+> The `AZURE_CLIENT_ID` secret identifies *which* Service Principal to authenticate as.
+> The Federated Credential on that Service Principal then tells Azure *which* GitHub repo and branch it trusts.
+> OIDC replaces the **client secret** — instead of a password, GitHub issues a short-lived signed token that Azure verifies against the Federated Credential. No secret is ever stored.
 
 Scripts for creating the service principal and configuring the federated credential are available in [rbrands/cloud-admin-toolkit](https://github.com/rbrands/cloud-admin-toolkit).
 

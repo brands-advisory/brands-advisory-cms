@@ -42,6 +42,14 @@ else
                 <meta property="article:tag" content="@tag" />
             }
         }
+        @if (!string.IsNullOrEmpty(_article.TitleImageUrl))
+        {
+            <meta property="og:image" content="@_article.TitleImageUrl" />
+        }
+        else
+        {
+            <meta property="og:image" content="@(Config["SiteUrl"])/images/og-image.png" />
+        }
         <link rel="canonical"
               href="@(Config["SiteUrl"])/articles/@_article.Slug" />
     </HeadContent>
@@ -73,6 +81,16 @@ else
                 {
                     <span class="tag-pill" style="font-size:0.75rem; padding:2px 8px;">@tag</span>
                 }
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(_article.TitleImageUrl))
+        {
+            <div class="mb-4">
+                <img src="@_article.TitleImageUrl"
+                     class="img-fluid rounded"
+                     style="width: 100%; max-height: 400px; object-fit: cover;"
+                     alt="@_article.Title" />
             </div>
         }
 

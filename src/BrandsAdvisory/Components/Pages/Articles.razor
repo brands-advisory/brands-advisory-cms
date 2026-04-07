@@ -42,6 +42,16 @@ else
             <div class="col">
                 <div class="card h-100 card-dark position-relative">
 
+                    @if (!string.IsNullOrEmpty(article.TitleImageUrl))
+                    {
+                        <a href="/articles/@article.Slug">
+                            <img src="@article.TitleImageUrl"
+                                 class="card-img-top rounded-top"
+                                 style="height: 160px; object-fit: cover;"
+                                 alt="@article.Title" />
+                        </a>
+                    }
+
                     @if (IsOwner)
                     {
                         <a href="/admin/articles/@article.Id"

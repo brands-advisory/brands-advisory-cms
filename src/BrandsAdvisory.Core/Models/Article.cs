@@ -10,4 +10,5 @@ public class Article : CosmosDocument
     public DateTime? PublishedDate { get; set; }
     public bool IsPublished { get; set; }
     public List<string> Tags { get; set; } = [];
+    public string TitleImageUrl { get; set; } = string.Empty;
 }
