@@ -86,6 +86,21 @@ All content is stored in a single Cosmos DB container (`content`) with a `type` 
 
 ```
 brands-advisory-cms.slnx
+infra/
+├── main.bicep                      # Entry point — orchestrates all modules
+├── main.bicepparam                 # Production parameter values
+├── main.local.bicepparam           # Local parameter values (gitignored)
+└── modules/
+    ├── app-service.bicep           # App Service Plan + Linux Web App (.NET 10)
+    ├── appinsights.bicep           # Application Insights + Log Analytics workspace
+    ├── cosmos.bicep                # Cosmos DB account, database, container
+    ├── cosmos-rbac.bicep           # Cosmos DB Built-in Data Contributor → Web App identity
+    ├── custom-domain.bicep         # Apex + www hostname bindings
+    ├── custom-domain-ssl.bicep     # Free managed SSL certificate for www subdomain
+    ├── keyvault.bicep              # Key Vault
+    ├── keyvault-rbac.bicep         # KV Certificate User + Secrets User → Web App identity
+    ├── storage.bicep               # Storage Account + article-images blob container
+    └── storage-rbac.bicep          # Storage Blob Data Contributor → Web App identity
 src/
 ├── BrandsAdvisory/             # Blazor Web App host (SSR + API)
 │   ├── Components/
