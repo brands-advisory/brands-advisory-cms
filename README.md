@@ -29,6 +29,74 @@ The application itself is a freelancer portfolio site — publicly readable with
 | CI/CD | [GitHub Actions](https://docs.github.com/en/actions) |
 | Observability | Azure Application Insights + Log Analytics |
 
+### Dependency Diagram
+
+```mermaid
+graph TD
+    subgraph Solution["brands-advisory-cms Solution (.NET 10)"]
+        BA["BrandsAdvisory\n(Blazor SSR Host)"]
+        BAC["BrandsAdvisory.Client\n(Blazor WASM)"]
+        CORE["BrandsAdvisory.Core\n(Class Library)"]
+        INFRA["BrandsAdvisory.Infrastructure\n(Class Library)"]
+    end
+
+    BA --> BAC
+    BA --> CORE
+    BA --> INFRA
+    BAC --> CORE
+    INFRA --> CORE
+
+    subgraph Auth["Authentication"]
+        MIW["Microsoft.Identity.Web"]
+        MIWUI["Microsoft.Identity.Web.UI"]
+    end
+
+    subgraph BlazorPkgs["Blazor / ASP.NET Core"]
+        WASM["Components.WebAssembly"]
+        WASMServer["Components.WebAssembly.Server"]
+        BlazorAuth["Components.Authorization"]
+    end
+
+    subgraph AzureSDK["Azure SDK"]
+        AzId["Azure.Identity"]
+        AzBlobs["Azure.Storage.Blobs"]
+        AzSecrets["Azure.Extensions…Configuration.Secrets"]
+        Cosmos["Microsoft.Azure.Cosmos"]
+    end
+
+    subgraph SyncfusionUI["Syncfusion UI (Community)"]
+        SFGrid["Syncfusion.Blazor.Grid"]
+        SFRTE["Syncfusion.Blazor.RichTextEditor"]
+        SFThemes["Syncfusion.Blazor.Themes"]
+    end
+
+    subgraph Observability["Observability"]
+        AppIns["Microsoft.ApplicationInsights.AspNetCore"]
+    end
+
+    subgraph Misc["Misc"]
+        ImageSharp["SixLabors.ImageSharp"]
+        NJson["Newtonsoft.Json"]
+        MsExtConfig["Microsoft.Extensions.Configuration.Abstractions"]
+    end
+
+    BA --> MIW & MIWUI
+    BA --> WASMServer
+    BA --> AzBlobs & AzSecrets
+    BA --> AppIns
+    BA --> ImageSharp
+    BA --> SFGrid & SFRTE & SFThemes
+
+    BAC --> WASM & BlazorAuth
+    BAC --> AzBlobs
+    BAC --> SFGrid & SFRTE & SFThemes
+
+    INFRA --> AzId & Cosmos
+    INFRA --> NJson & MsExtConfig
+
+    CORE --> MsExtConfig
+```
+
 ---
 
 ## Architecture Decisions
