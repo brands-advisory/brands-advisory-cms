@@ -46,55 +46,10 @@ graph TD
     BAC --> CORE
     INFRA --> CORE
 
-    subgraph Auth["Authentication"]
-        MIW["Microsoft.Identity.Web"]
-        MIWUI["Microsoft.Identity.Web.UI"]
-    end
-
-    subgraph BlazorPkgs["Blazor / ASP.NET Core"]
-        WASM["Components.WebAssembly"]
-        WASMServer["Components.WebAssembly.Server"]
-        BlazorAuth["Components.Authorization"]
-    end
-
-    subgraph AzureSDK["Azure SDK"]
-        AzId["Azure.Identity"]
-        AzBlobs["Azure.Storage.Blobs"]
-        AzSecrets["Azure.Extensions…Configuration.Secrets"]
-        Cosmos["Microsoft.Azure.Cosmos"]
-    end
-
-    subgraph SyncfusionUI["Syncfusion UI (Community)"]
-        SFGrid["Syncfusion.Blazor.Grid"]
-        SFRTE["Syncfusion.Blazor.RichTextEditor"]
-        SFThemes["Syncfusion.Blazor.Themes"]
-    end
-
-    subgraph Observability["Observability"]
-        AppIns["Microsoft.ApplicationInsights.AspNetCore"]
-    end
-
-    subgraph Misc["Misc"]
-        ImageSharp["SixLabors.ImageSharp"]
-        NJson["Newtonsoft.Json"]
-        MsExtConfig["Microsoft.Extensions.Configuration.Abstractions"]
-    end
-
-    BA --> MIW & MIWUI
-    BA --> WASMServer
-    BA --> AzBlobs & AzSecrets
-    BA --> AppIns
-    BA --> ImageSharp
-    BA --> SFGrid & SFRTE & SFThemes
-
-    BAC --> WASM & BlazorAuth
-    BAC --> AzBlobs
-    BAC --> SFGrid & SFRTE & SFThemes
-
-    INFRA --> AzId & Cosmos
-    INFRA --> NJson & MsExtConfig
-
-    CORE --> MsExtConfig
+   
+   
+ 
+   
 ```
 
 ---
