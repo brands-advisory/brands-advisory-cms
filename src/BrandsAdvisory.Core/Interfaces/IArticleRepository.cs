@@ -17,5 +17,5 @@ public interface IArticleRepository : IRepository<Article>
     /// <summary>
     /// Returns all published articles ordered by published date descending.
     /// </summary>
-    Task<List<Article>> GetPublishedAsync();
+    Task<IReadOnlyList<Article>> GetPublishedAsync();
 }

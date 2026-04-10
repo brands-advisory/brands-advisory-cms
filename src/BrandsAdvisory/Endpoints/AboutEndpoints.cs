@@ -22,8 +22,8 @@ public static class AboutEndpoints
 
         group.MapPut("/", async (AboutContent about, IAboutRepository repo) =>
         {
-            await repo.UpsertAsync(about);
-            return Results.NoContent();
+            var saved = await repo.UpsertAsync(about);
+            return Results.Ok(saved);
         });
 
         return app;

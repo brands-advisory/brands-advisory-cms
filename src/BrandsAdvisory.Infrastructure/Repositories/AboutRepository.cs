@@ -19,7 +19,6 @@ public class AboutRepository(CosmosClient client, IConfiguration configuration)
             return all[0];
 
         var about = new AboutContent { Id = "about" };
-        await UpsertAsync(about);
-        return about;
+        return await UpsertAsync(about);
     }
 }

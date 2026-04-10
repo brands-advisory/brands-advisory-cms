@@ -1,8 +1,9 @@
-using Azure.Identity;
 using BrandsAdvisory.Core.Interfaces;
 using BrandsAdvisory.Core.Models;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Configuration;
+using System.Linq.Expressions;
 
 namespace BrandsAdvisory.Infrastructure.Repositories;
 
@@ -18,7 +19,7 @@ public class CosmosRepository<T>(CosmosClient client, IConfiguration configurati
         configuration["CosmosDb:DatabaseId"]!,
         configuration["CosmosDb:ContainerName"]!);
 
-    private static string TypeKey => Activator.CreateInstance<T>().Type;
+    private static readonly string TypeKey = Activator.CreateInstance<T>().Type;
 
     /// <inheritdoc/>
     public async Task<T?> GetByIdAsync(string id)
@@ -35,7 +36,7 @@ public class CosmosRepository<T>(CosmosClient client, IConfiguration configurati
     }
 
     /// <inheritdoc/>
-    public virtual async Task<List<T>> GetAllAsync()
+    public virtual async Task<IReadOnlyList<T>> GetAllAsync()
     {
         var query = new QueryDefinition("SELECT * FROM c WHERE c.type = @type")
             .WithParameter("@type", TypeKey);
@@ -45,10 +46,11 @@ public class CosmosRepository<T>(CosmosClient client, IConfiguration configurati
     }
 
     /// <inheritdoc/>
-    public async Task UpsertAsync(T document)
+    public async Task<T> UpsertAsync(T document)
     {
         document.UpdatedAt = DateTime.UtcNow;
-        await Container.UpsertItemAsync(document, new PartitionKey(document.Type));
+        var response = await Container.UpsertItemAsync(document, new PartitionKey(document.Type));
+        return response.Resource;
     }
 
     /// <inheritdoc/>
@@ -57,12 +59,31 @@ public class CosmosRepository<T>(CosmosClient client, IConfiguration configurati
         await Container.DeleteItemAsync<T>(id, new PartitionKey(TypeKey));
     }
 
+    /// <inheritdoc/>
+    public async Task<IReadOnlyList<T>> QueryAsync(Expression<Func<T, bool>> predicate)
+    {
+        var options = new QueryRequestOptions { PartitionKey = new PartitionKey(TypeKey) };
+        var iterator = Container
+            .GetItemLinqQueryable<T>(requestOptions: options)
+            .Where(d => d.Type == TypeKey)
+            .Where(predicate)
+            .ToFeedIterator();
+
+        var results = new List<T>();
+        while (iterator.HasMoreResults)
+        {
+            var page = await iterator.ReadNextAsync();
+            results.AddRange(page);
+        }
+        return results;
+    }
+
     /// <summary>
     /// Executes a parameterised query and returns all matching documents.
     /// </summary>
     /// <param name="query">The query definition.</param>
     /// <param name="options">Optional per-request options, e.g. partition key.</param>
-    protected async Task<List<T>> ExecuteQueryAsync(
+    protected async Task<IReadOnlyList<T>> ExecuteQueryAsync(
         QueryDefinition query, QueryRequestOptions options)
     {
         var iterator = Container.GetItemQueryIterator<T>(query, requestOptions: options);

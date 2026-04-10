@@ -96,7 +96,7 @@ else
     [CascadingParameter(Name = "IsOwner")]
     public bool IsOwner { get; set; }
 
-    private List<Project>? _projects;
+    private IReadOnlyList<Project>? _projects;
 
     protected override async Task OnInitializedAsync()
     {

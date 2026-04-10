@@ -24,8 +24,8 @@ public static class ProjectEndpoints
 
         group.MapPut("/", async (Project project, IProjectRepository repo) =>
         {
-            await repo.UpsertAsync(project);
-            return Results.NoContent();
+            var saved = await repo.UpsertAsync(project);
+            return Results.Ok(saved);
         });
 
         group.MapDelete("/{id}", async (string id, IProjectRepository repo) =>

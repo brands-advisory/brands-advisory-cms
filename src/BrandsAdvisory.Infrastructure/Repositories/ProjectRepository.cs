@@ -12,7 +12,7 @@ public class ProjectRepository(CosmosClient client, IConfiguration configuration
     : CosmosRepository<Project>(client, configuration), IProjectRepository
 {
     /// <inheritdoc/>
-    public override async Task<List<Project>> GetAllAsync()
+    public override async Task<IReadOnlyList<Project>> GetAllAsync()
     {
         var query = new QueryDefinition(
             "SELECT * FROM c WHERE c.type = 'project' ORDER BY c.projectStart DESC");

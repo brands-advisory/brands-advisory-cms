@@ -1,5 +1,6 @@
 using BrandsAdvisory.Core.Interfaces;
 using BrandsAdvisory.Core.Models;
+using System.Linq.Expressions;
 using System.Net.Http.Json;
 
 namespace BrandsAdvisory.Client.Services;
@@ -16,16 +17,17 @@ public class HttpAboutRepository(HttpClient http) : IAboutRepository
         return result ?? new AboutContent { Id = "about" };
     }
 
-    public async Task UpsertAsync(AboutContent document)
+    public async Task<AboutContent> UpsertAsync(AboutContent document)
     {
         var response = await http.PutAsJsonAsync("/api/about", document);
         response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<AboutContent>() ?? document;
     }
 
     public Task<AboutContent?> GetByIdAsync(string id) =>
         http.GetFromJsonAsync<AboutContent>($"/api/about");
 
-    public async Task<List<AboutContent>> GetAllAsync()
+    public async Task<IReadOnlyList<AboutContent>> GetAllAsync()
     {
         var item = await GetOrCreateAsync();
         return [item];
@@ -33,4 +35,7 @@ public class HttpAboutRepository(HttpClient http) : IAboutRepository
 
     public Task DeleteAsync(string id) =>
         throw new NotSupportedException("Deleting the About document is not supported.");
+
+    public Task<IReadOnlyList<AboutContent>> QueryAsync(Expression<Func<AboutContent, bool>> predicate) =>
+        throw new NotSupportedException("QueryAsync is not supported in the WASM client.");
 }

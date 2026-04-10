@@ -24,8 +24,8 @@ public static class ArticleEndpoints
 
         group.MapPut("/", async (Article article, IArticleRepository repo) =>
         {
-            await repo.UpsertAsync(article);
-            return Results.NoContent();
+            var saved = await repo.UpsertAsync(article);
+            return Results.Ok(saved);
         });
 
         group.MapDelete("/{id}", async (string id, IArticleRepository repo) =>

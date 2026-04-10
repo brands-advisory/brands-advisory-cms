@@ -12,7 +12,7 @@ public class ArticleRepository(CosmosClient client, IConfiguration configuration
     : CosmosRepository<Article>(client, configuration), IArticleRepository
 {
     /// <inheritdoc/>
-    public override async Task<List<Article>> GetAllAsync()
+    public override async Task<IReadOnlyList<Article>> GetAllAsync()
     {
         var query = new QueryDefinition(
             "SELECT * FROM c WHERE c.type = 'article' ORDER BY c.createdAt DESC");
@@ -34,7 +34,7 @@ public class ArticleRepository(CosmosClient client, IConfiguration configuration
     }
 
     /// <inheritdoc/>
-    public async Task<List<Article>> GetPublishedAsync()
+    public async Task<IReadOnlyList<Article>> GetPublishedAsync()
     {
         var query = new QueryDefinition(
             "SELECT * FROM c WHERE c.type = 'article' AND c.isPublished = true " +

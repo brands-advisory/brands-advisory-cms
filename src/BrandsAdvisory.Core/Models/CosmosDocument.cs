@@ -19,4 +19,8 @@ public abstract class CosmosDocument
 
     [JsonPropertyName("updatedAt")]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    [JsonPropertyName("ttl")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? TimeToLive { get; set; }
 }
