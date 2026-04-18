@@ -20,6 +20,9 @@ param containerName string
 @description('Partition key path for the container.')
 param partitionKeyPath string = '/type'
 
+@description('Default TTL for container items in seconds. -1 = TTL enabled, items live forever unless they set their own _ttl. Omit or set to 0 to disable TTL entirely.')
+param defaultTtl int = -1
+
 // ---------------------------------------------------------------------------
 // Cosmos DB Account
 // ---------------------------------------------------------------------------
@@ -74,6 +77,7 @@ resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/con
         ]
         kind: 'Hash'
       }
+      defaultTtl: defaultTtl
     }
     options: {
       throughput: 400
