@@ -46,7 +46,7 @@ public class CosmosRepository<T>(CosmosClient client, IConfiguration configurati
     }
 
     /// <inheritdoc/>
-    public async Task<T> UpsertAsync(T document)
+    public virtual async Task<T> UpsertAsync(T document)
     {
         document.UpdatedAt = DateTime.UtcNow;
         var response = await Container.UpsertItemAsync(document, new PartitionKey(document.Type));

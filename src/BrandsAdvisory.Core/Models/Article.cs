@@ -11,4 +11,8 @@ public class Article : CosmosDocument
     public bool IsPublished { get; set; }
     public List<string> Tags { get; set; } = [];
     public string TitleImageUrl { get; set; } = string.Empty;
+    /// <summary>
+    /// Optional lifetime in days. Null means the article never expires.
+    /// </summary>
+    public int? ExpiresAfterDays { get; set; }
 }

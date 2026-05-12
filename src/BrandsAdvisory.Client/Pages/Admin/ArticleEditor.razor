@@ -82,6 +82,20 @@ else
         </div>
 
         <div>
+            <label class="form-label text-secondary small">Lifetime</label>
+            <select class="form-select bg-dark text-white border-secondary"
+                    value="@(_article.ExpiresAfterDays?.ToString() ?? "")"
+                    @onchange="OnLifetimeChanged">
+                <option value="">Unlimited</option>
+                <option value="7">1 week</option>
+                <option value="28">4 weeks</option>
+                <option value="90">3 months</option>
+                <option value="180">6 months</option>
+                <option value="365">1 year</option>
+            </select>
+        </div>
+
+        <div>
             <label class="form-label text-secondary small">
                 Title Image (optional)
             </label>
@@ -187,6 +201,12 @@ else
 
         await ArticleRepo.UpsertAsync(_article);
         Nav.NavigateTo($"/articles/{_article.Slug}");
+    }
+
+    private void OnLifetimeChanged(Microsoft.AspNetCore.Components.ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        _article.ExpiresAfterDays = int.TryParse(value, out var days) ? days : null;
     }
 
     // OnImageUploadSuccess fires BEFORE ValueChanged updates _article.Content.

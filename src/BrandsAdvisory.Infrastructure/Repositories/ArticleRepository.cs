@@ -12,6 +12,19 @@ public class ArticleRepository(CosmosClient client, IConfiguration configuration
     : CosmosRepository<Article>(client, configuration), IArticleRepository
 {
     /// <inheritdoc/>
+    public override async Task<Article> UpsertAsync(Article document)
+    {
+        // Map ExpiresAfterDays → Cosmos DB TTL (seconds).
+        // null  → omit ttl field; container default (defaultTtl = -1) applies → item never expires.
+        // n > 0 → item is deleted automatically after n days from the last write (_ts).
+        document.TimeToLive = document.ExpiresAfterDays.HasValue
+            ? document.ExpiresAfterDays.Value * 86_400
+            : null;
+
+        return await base.UpsertAsync(document);
+    }
+
+    /// <inheritdoc/>
     public override async Task<IReadOnlyList<Article>> GetAllAsync()
     {
         var query = new QueryDefinition(
