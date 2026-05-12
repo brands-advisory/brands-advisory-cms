@@ -50,7 +50,10 @@ if (!string.IsNullOrEmpty(syncfusionKey))
 // exceptions, and performance metrics.
 // Connection string is set via App Service configuration:
 // APPLICATIONINSIGHTS_CONNECTION_STRING
-builder.Services.AddApplicationInsightsTelemetry();
+// In version 3.x the SDK throws when no connection string is present,
+// so we only register it when the value is actually configured.
+if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+    builder.Services.AddApplicationInsightsTelemetry();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
