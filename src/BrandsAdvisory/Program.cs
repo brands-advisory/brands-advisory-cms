@@ -166,6 +166,20 @@ builder.Services.AddSingleton<IAboutRepository, AboutRepository>();
 
 builder.Services.AddScoped<IOwnerService, OwnerService>();
 
+// ClientConfig must be available in server-side DI for Blazor WASM prerender.
+// The WASM client fetches this at startup via /api/config; during SSR prerender
+// the server resolves the same values directly from IConfiguration.
+builder.Services.AddSingleton(sp =>
+{
+    var cfg = sp.GetRequiredService<IConfiguration>();
+    var blobEndpoint = cfg["Storage:BlobEndpoint"] ?? string.Empty;
+    return new BrandsAdvisory.Client.Models.ClientConfig
+    {
+        SyncfusionLicenseKey = cfg["Syncfusion:LicenseKey"] ?? string.Empty,
+        ImageContainerUrl = blobEndpoint.TrimEnd('/') + "/article-images/"
+    };
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -206,6 +220,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseAntiforgery();
+
+// blazor.web.js (even in Release builds) dynamically imports the Hot Reload
+// bridge module. In production the file doesn't exist → 404 → unhandled
+// promise rejection → WASM never activates on Safari / Edge (Mac).
+// Return an empty JS module so the import() resolves cleanly.
+app.MapGet("/_content/Microsoft.DotNet.HotReload.WebAssembly.Browser/{**rest}",
+    () => Results.Content(string.Empty, "application/javascript"))
+    .AllowAnonymous();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
