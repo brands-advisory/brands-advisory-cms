@@ -31,6 +31,33 @@ else
     <div class="card-dark p-4 d-flex flex-column gap-3 mb-4">
 
         <div>
+            <label class="form-label text-secondary small">Title</label>
+            <input class="form-control bg-dark text-white border-secondary"
+                   @bind="_about.Title" />
+        </div>
+        <div>
+            <label class="form-label text-secondary small">Header Title</label>
+            <input class="form-control bg-dark text-white border-secondary"
+                   @bind="_about.HeaderTitle" />
+        </div>
+        <div>
+            <label class="form-label text-secondary small">Header Subtitle</label>
+            <input class="form-control bg-dark text-white border-secondary"
+                   @bind="_about.HeaderSubtitle" />
+        </div>
+
+        <div>
+            <label class="form-label text-secondary small">Avatar Image</label>
+            <ImageUploader
+                @bind-ImageUrl="_about.AvatarUrl"
+                MaxWidth="200"
+                MaxHeight="200"
+                Label="Avatar"
+                ShowUrl="false" />
+            <div class="form-text text-secondary small">Recommended: square, min 200×200px</div>
+        </div>
+
+        <div>
             <label class="form-label text-secondary small">Subtitle</label>
             <textarea class="form-control bg-dark text-white border-secondary"
                       rows="3"
@@ -56,9 +83,31 @@ else
                    @bind="_about.ContactHint" />
         </div>
 
+        <div>
+            <label class="form-label text-secondary small">Footer Copyright</label>
+            <input class="form-control bg-dark text-white border-secondary"
+                   @bind="_about.FooterCopyright"
+                   placeholder="Brands Advisory" />
+        </div>
+
+        <div>
+            <label class="form-label text-secondary small">Footer Link</label>
+            <input class="form-control bg-dark text-white border-secondary"
+                   type="url"
+                   @bind="_about.FooterLink"
+                   placeholder="https://example.com" />
+        </div>
+
+        <div>
+            <label class="form-label text-secondary small">Footer Link Title</label>
+            <input class="form-control bg-dark text-white border-secondary"
+                   @bind="_about.FooterLinkTitle"
+                   placeholder="example.com" />
+        </div>
+
     </div>
 
-    <h5 class="fw-bold mb-3">Skill Tags</h5>
+    <h5 class="fw-bold mb-3">Tags</h5>
 
     <div class="card-dark p-3 mb-3">
         <label class="form-label text-secondary small">Comma-separated — e.g. Cloud Adoption (Azure), Solution Architecture</label>
@@ -66,7 +115,7 @@ else
                @bind="_tagsInput" />
     </div>
 
-    <h5 class="fw-bold mb-3">Profile Links</h5>
+    <h5 class="fw-bold mb-3">Links</h5>
 
     <div class="card-dark p-3 mb-3">
         @foreach (var (link, index) in _about.Links.Select((l, i) => (l, i)))
@@ -86,6 +135,8 @@ else
                         <option value="bi-youtube">▶ YouTube</option>
                         <option value="bi-instagram">📷 Instagram</option>
                         <option value="bi-telephone">📞 Phone</option>
+                        <option value="bi-whatsapp">💬 WhatsApp</option>
+                        <option value="bi-activity">📊 Intervals ICU</option>
                         <option value="bi-calendar">📅 Calendar</option>
                         <option value="bi-file-earmark-text">📋 CV/Resume</option>
                         <option value="bi-stack-overflow">SO Stack Overflow</option>

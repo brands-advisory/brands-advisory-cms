@@ -11,9 +11,11 @@ This project demonstrates how to build and deploy a production-ready .NET web ap
 - **Infrastructure as Code** — Bicep templates for all Azure resources
 - **CI/CD with GitHub Actions** — automated deployment for both app and infrastructure using OIDC Federated Credentials (no client secrets)
 
-The application itself is a freelancer portfolio site — publicly readable with owner-only content editing via Microsoft Entra ID. No separate admin user database required.
+The application itself is a freelancer portfolio site as "mini cms" — publicly readable with owner-only content editing via Microsoft Entra ID. No separate admin user database required.
 
 > This repository is intentionally kept as a clean, well-documented blueprint. Fork it and adapt it to your own use case.
+
+You can use this repo as template to start with a functional web site with basic editing features. Adapt the menu, edit the data and you are ready to go.
 
 ---
 

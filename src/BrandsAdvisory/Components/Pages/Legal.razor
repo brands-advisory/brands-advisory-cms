@@ -1,20 +1,36 @@
 @page "/legal"
+@inject IAboutRepository AboutRepo
 
 <PageTitle>Legal Notice · Brands Advisory</PageTitle>
 
-<div class="card-dark p-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold mb-0">Legal Notice</h1>
+    @if (_isOwner)
+    {
+        <a href="/admin/legal" class="btn btn-outline-secondary btn-sm">Edit</a>
+    }
+</div>
 
-    <h1 class="fw-bold mb-4">Legal Notice</h1>
+<div class="card-dark p-4">
 
     <h5 class="fw-semibold mb-2">Service Provider (pursuant to § 5 TMG)</h5>
     <p class="text-secondary">
-        Robert Brands<br />
-        Cologne, Germany
+        @if (!string.IsNullOrEmpty(_about?.LegalServiceProviderName))
+        {
+            @_about.LegalServiceProviderName<br />
+        }
+        @if (!string.IsNullOrEmpty(_about?.LegalServiceProviderLocation))
+        {
+            @_about.LegalServiceProviderLocation
+        }
     </p>
 
     <h5 class="fw-semibold mb-2">Contact</h5>
     <p class="text-secondary">
-        E-Mail: mail@robert-brands.com
+        @if (!string.IsNullOrEmpty(_about?.LegalContact))
+        {
+            @($"E-Mail: {_about.LegalContact}")
+        }
     </p>
 
     <hr class="border-secondary" />
@@ -46,3 +62,15 @@
     </p>
 
 </div>
+
+@code {
+    [CascadingParameter(Name = "IsOwner")]
+    private bool _isOwner { get; set; }
+
+    private AboutContent? _about;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _about = await AboutRepo.GetOrCreateAsync();
+    }
+}
