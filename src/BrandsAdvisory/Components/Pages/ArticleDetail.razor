@@ -12,7 +12,7 @@
 }
 else if (_article is null)
 {
-    <PageTitle>Article not found · Brands Advisory</PageTitle>
+    <PageTitle>Article not found</PageTitle>
     <div class="text-center py-5">
         <p class="text-secondary">Article not found.</p>
         <a href="/articles" class="btn btn-outline-secondary btn-sm">← Back to Articles</a>
@@ -20,11 +20,11 @@ else if (_article is null)
 }
 else
 {
-    <PageTitle>@_article.Title · Brands Advisory</PageTitle>
+    <PageTitle>@_article.Title · @_siteTitle</PageTitle>
     <HeadContent>
         <meta name="description" content="@_article.Summary" />
         <meta property="og:title"
-              content="@_article.Title · Brands Advisory" />
+              content="@_article.Title · @_siteTitle" />
         <meta property="og:description" content="@_article.Summary" />
         <meta property="og:url"
               content="@(Config["SiteUrl"])/articles/@_article.Slug" />
@@ -114,6 +114,9 @@ else
 
     [CascadingParameter(Name = "IsOwner")]
     public bool IsOwner { get; set; }
+
+    [CascadingParameter(Name = "SiteTitle")]
+    private string _siteTitle { get; set; } = "Header Title";
 
     private Article? _article;
     private bool _loaded;

@@ -5,6 +5,8 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthStateProvider
 
+<CascadingValue Value="@(_about?.HeaderTitle ?? "Header Title")" Name="SiteTitle">
+<CascadingValue Value="@(_about?.HeaderSubtitle ?? "Header Subtitle")" Name="SiteSubTitle">
 <CascadingValue Value="_isOwner" Name="IsOwner">
 
 <nav class="navbar navbar-dark sticky-top" style="background-color: #0d1117;">
@@ -92,4 +94,6 @@
     }
 }
 
+</CascadingValue>
+</CascadingValue>
 </CascadingValue>

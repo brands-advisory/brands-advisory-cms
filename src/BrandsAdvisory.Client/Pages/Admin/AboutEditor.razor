@@ -6,7 +6,7 @@
 @inject IAboutRepository AboutRepo
 @inject NavigationManager Nav
 
-<PageTitle>Edit About · Brands Advisory</PageTitle>
+<PageTitle>Edit About · @(_about?.HeaderTitle ?? "Brands Advisory")</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold mb-0">Edit About</h2>

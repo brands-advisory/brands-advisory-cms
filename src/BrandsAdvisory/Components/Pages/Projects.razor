@@ -3,11 +3,11 @@
 @inject IProjectRepository ProjectRepo
 @inject IConfiguration Config
 
-<PageTitle>Projects · Brands Advisory</PageTitle>
+<PageTitle>Projects · @_siteTitle</PageTitle>
 <HeadContent>
     <meta name="description"
           content="Selected consulting projects in cloud adoption, solution architecture and GenAI enablement." />
-    <meta property="og:title" content="Projects · Brands Advisory" />
+    <meta property="og:title" content="Projects · @_siteTitle" />
     <meta property="og:description"
           content="Selected consulting projects in cloud adoption, solution architecture and GenAI enablement." />
     <meta property="og:url" content="@(Config["SiteUrl"])/projects" />
@@ -95,6 +95,9 @@ else
 @code {
     [CascadingParameter(Name = "IsOwner")]
     public bool IsOwner { get; set; }
+
+    [CascadingParameter(Name = "SiteTitle")]
+    private string _siteTitle { get; set; } = "Brands Advisory";
 
     private IReadOnlyList<Project>? _projects;
 

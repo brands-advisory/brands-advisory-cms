@@ -3,11 +3,11 @@
 @inject IArticleRepository ArticleRepo
 @inject IConfiguration Config
 
-<PageTitle>Articles · Brands Advisory</PageTitle>
+<PageTitle>Articles · @_siteTitle</PageTitle>
 <HeadContent>
     <meta name="description"
           content="Articles about cloud architecture, Azure, and practical GenAI enablement." />
-    <meta property="og:title" content="Articles · Brands Advisory" />
+    <meta property="og:title" content="Articles · @_siteTitle" />
     <meta property="og:description"
           content="Articles about cloud architecture, Azure, and practical GenAI enablement." />
     <meta property="og:url" content="@(Config["SiteUrl"])/articles" />
@@ -98,6 +98,9 @@ else
 @code {
     [CascadingParameter(Name = "IsOwner")]
     public bool IsOwner { get; set; }
+
+    [CascadingParameter(Name = "SiteTitle")]
+    private string _siteTitle { get; set; } = "Header Title";
 
     private IReadOnlyList<Article>? _articles;
 

@@ -9,7 +9,7 @@
 @inject ClientConfig Config
 @inject IJSRuntime JSRuntime
 
-<PageTitle>@(_isNew ? "New Article" : "Edit Article") · Brands Advisory</PageTitle>
+<PageTitle>@(_isNew ? "New Article" : "Edit Article") · @_siteTitle</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold mb-0">@(_isNew ? "New Article" : "Edit Article")</h2>
@@ -128,6 +128,9 @@ else
 @code {
     [Parameter]
     public string Id { get; set; } = string.Empty;
+
+    [CascadingParameter(Name = "SiteTitle")]
+    private string _siteTitle { get; set; } = "Brands Advisory";
 
     private Article _article = new();
     private string _tagsInput = string.Empty;

@@ -4,14 +4,14 @@
 @inject NavigationManager Nav
 @inject IConfiguration Config
 
-<PageTitle>Robert Brands · Freelance IT Consultant</PageTitle>
+<PageTitle>@_siteTitle · @_siteSubTitle</PageTitle>
 <HeadContent>
     <meta name="description"
           content="@(_about?.Subtitle ?? "Freelance IT Consultant specializing in Azure, Solution Architecture and GenAI.")" />
     <meta property="og:title"
-          content="Robert Brands · Freelance IT Consultant" />
+          content="@_siteTitle · @_siteSubTitle" />
     <meta property="og:description"
-          content="@(_about?.Subtitle ?? "Freelance IT Consultant specializing in Azure, Solution Architecture and GenAI.")" />
+          content="@(_about?.Subtitle ?? "Subtitle")" />
     <meta property="og:url" content="@(Config["SiteUrl"])/" />
     <meta property="og:image" content="@(Config["SiteUrl"])/images/brands-advisory-og.png" />
     <link rel="canonical" href="@(Config["SiteUrl"])/" />
@@ -108,6 +108,12 @@ else
 @code {
     [CascadingParameter(Name = "IsOwner")]
     public bool IsOwner { get; set; }
+
+    [CascadingParameter(Name = "SiteTitle")]
+    private string _siteTitle { get; set; } = "Header Title";
+
+    [CascadingParameter(Name = "SiteSubTitle")]
+    private string _siteSubTitle { get; set; } = "";
 
     private AboutContent? _about;
 
