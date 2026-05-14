@@ -105,8 +105,10 @@ public static class ImageEndpoints
             // User Delegation Key: required when using Managed Identity (no account key available).
             // Slightly back-dated start time to tolerate minor clock skew between servers.
             var delegationKey = await blobServiceClient.GetUserDelegationKeyAsync(
-                DateTimeOffset.UtcNow.AddMinutes(-5),
-                DateTimeOffset.UtcNow.AddMinutes(5));
+                new BlobGetUserDelegationKeyOptions(DateTimeOffset.UtcNow.AddMinutes(5))
+                {
+                    StartsOn = DateTimeOffset.UtcNow.AddMinutes(-5)
+                });
 
             var sasBuilder = new BlobSasBuilder
             {
