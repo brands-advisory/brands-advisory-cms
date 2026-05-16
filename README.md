@@ -193,27 +193,9 @@ Use `Create-ServicePrincipalForDeployment.ps1` from [cloud-admin-toolkit](https:
 ```powershell
 .\Create-ServicePrincipalForDeployment.ps1 -ConfigName <project-name>
 ```
+This script also assigns **Contributor** and **User Access Administrator** roles on the resource group.
 
-### 3. Assign Roles on Resource Group
-
-Two roles are required on the resource group:
-```bash
-# Contributor — create and manage all resources
-az role assignment create \
-  --assignee <service-principal-app-id> \
-  --role "Contributor" \
-  --scope "/subscriptions/<subscription-id>/resourceGroups/<resource-group>"
-
-# User Access Administrator — required for Bicep to set RBAC role assignments
-# on Cosmos DB, Key Vault, Storage. Must be on RG level — resources don't
-# exist yet when the service principal is created (chicken-and-egg problem).
-az role assignment create \
-  --assignee <service-principal-app-id> \
-  --role "User Access Administrator" \
-  --scope "/subscriptions/<subscription-id>/resourceGroups/<resource-group>"
-```
-
-### 4. Add OIDC Federated Credential
+### 3. Add OIDC Federated Credential
 
 Use `Add-FederatedCredentialForGitHub.ps1` from [cloud-admin-toolkit](https://github.com/brands-advisory/cloud-admin-toolkit):
 ```powershell
@@ -222,7 +204,7 @@ Use `Add-FederatedCredentialForGitHub.ps1` from [cloud-admin-toolkit](https://gi
 
 After this step no client secret is stored anywhere. OIDC handles authentication via GitHub's identity provider.
 
-### 5. Create App Registration with Certificate
+### 4. Create App Registration with Certificate
 
 Use `Create-AppRegistrationWithCertificate.ps1` from [cloud-admin-toolkit](https://github.com/brands-advisory/cloud-admin-toolkit):
 ```powershell
@@ -231,7 +213,7 @@ Use `Create-AppRegistrationWithCertificate.ps1` from [cloud-admin-toolkit](https
 
 This creates the Entra ID App Registration for user authentication and generates a self-signed certificate.
 
-### 6. Configure and Run Setup Script
+### 5. Configure and Run Setup Script
 ```powershell
 # Copy and fill in all values
 cp config.example.ps1 config.ps1
@@ -241,7 +223,7 @@ cp config.example.ps1 config.ps1
 .\setup.ps1 -All
 ```
 
-### 7. Push to main — CI/CD takes over
+### 6. Push to main — CI/CD takes over
 ```bash
 git push origin main
 ```
@@ -255,7 +237,7 @@ deploy-infrastructure.yml creates:
 
 deploy-app.yml builds and deploys the application.
 
-### 8. Upload Certificate to Key Vault (one-time manual step)
+### 7. Upload Certificate to Key Vault (one-time manual step)
 
 After the first infrastructure deployment, upload the certificate:
 Azure Portal → <key-vault-name> → Certificates → Generate/Import → Import
@@ -264,7 +246,7 @@ Azure Portal → <key-vault-name> → Certificates → Generate/Import → Impor
 
 This is the only step that cannot be automated — storing the private key in CI/CD would defeat the purpose of using Key Vault.
 
-### 8a. Set Key Vault Secrets
+### 7a. Set Key Vault Secrets
 
 Assign the **Key Vault Secrets Officer** role to your account using `Set-KeyVaultRoleAssignment.ps1` from cloud-admin-toolkit, then run:
 
@@ -280,7 +262,7 @@ Secrets stored in Key Vault:
 
 > **Note:** Key Vault secret names use `--` as a separator, which Azure App Configuration maps to `:` in .NET configuration.
 
-### 9. Trigger final deployment
+### 8. Trigger final deployment
 
 After uploading the certificate, trigger a new deployment:
 ```bash
@@ -317,7 +299,7 @@ Both workflows use **OIDC Federated Credentials** for authentication — no clie
 
 ### Authentication Setup (OIDC)
 
-1. Create a Service Principal with **Contributor** and **User Access Administrator** roles on the resource group (see step 3 in [Initial Setup](#initial-setup-once-per-project))
+1. Create a Service Principal using `Create-ServicePrincipalForDeployment.ps1` (see step 2 in [Initial Setup](#initial-setup-once-per-project))
 2. Add a Federated Credential to the Service Principal:
    - **Issuer:** `https://token.actions.githubusercontent.com`
    - **Subject:** `repo:{org}/{repo}:ref:refs/heads/main`
