@@ -52,8 +52,15 @@ if (!string.IsNullOrEmpty(syncfusionKey))
 // APPLICATIONINSIGHTS_CONNECTION_STRING
 // In version 3.x the SDK throws when no connection string is present,
 // so we only register it when the value is actually configured.
+// Authentication uses DefaultAzureCredential (Managed Identity in production,
+// developer identity locally) instead of the instrumentation key.
+// Requires: Monitoring Metrics Publisher role on the Application Insights resource.
 if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+{
     builder.Services.AddApplicationInsightsTelemetry();
+    builder.Services.Configure<Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration>(config =>
+        config.SetAzureTokenCredential(new DefaultAzureCredential()));
+}
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

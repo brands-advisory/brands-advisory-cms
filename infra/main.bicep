@@ -170,6 +170,19 @@ module storageRbac 'modules/storage-rbac.bicep' = {
 }
 
 // ---------------------------------------------------------------------------
+// Module: Application Insights RBAC (Monitoring Metrics Publisher)
+// Allows the Managed Identity to publish telemetry via AAD authentication
+// instead of the instrumentation key.
+// ---------------------------------------------------------------------------
+module appInsightsRbac 'modules/appinsights-rbac.bicep' = {
+  name: 'appInsightsRbac'
+  params: {
+    appInsightsName: appInsightsName
+    principalId: appService.outputs.principalId
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Module: Custom Domain + Managed SSL (optional)
 // Deployed automatically when siteUrl is not an azurewebsites.net URL.
 // DNS records must be configured at the registrar before running this.
