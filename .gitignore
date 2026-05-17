@@ -62,6 +62,10 @@ set-secrets.sh
 set-secrets.ps1
 config.ps1
 
+# Local publish output
+tmp-publish/
+publish/
+
 # Bicep compiled output
 infra/main.json
 infra/modules/*.json
